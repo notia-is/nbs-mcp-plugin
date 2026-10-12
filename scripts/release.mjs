@@ -5,7 +5,7 @@
  *
  * - vydává se z čistého `main`, který odpovídá `origin/main`;
  * - brána je stejná validace, kterou pouští CI (scripts/validate.mjs);
- * - zvedne `version` v .claude-plugin/plugin.json;
+ * - zvedne `version` v plugin/.claude-plugin/plugin.json;
  * - sekci „## [Nevydáno]“ v CHANGELOG.md přejmenuje na novou verzi s dnešním datem a nad ni
  *   založí prázdnou. Prázdnou sekci odmítne, každá verze musí mít popsané změny.
  *
@@ -17,7 +17,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const MANIFEST = join(root, '.claude-plugin', 'plugin.json');
+const MANIFEST = join(root, 'plugin', '.claude-plugin', 'plugin.json');
 const CHANGELOG = join(root, 'CHANGELOG.md');
 const UNRELEASED = '## [Nevydáno]';
 
@@ -88,4 +88,4 @@ console.log(`
   Pushni commit i tag jedním příkazem (obyčejný git push tagy neposílá):
     git push origin main ${tag}
   Zip pro claude.ai z vydané verze:
-    git archive --format=zip --prefix=notia-business-server/ ${tag} > notia-business-server-${newVersion}.zip`);
+    git archive --format=zip --prefix=notia-business-server/ ${tag}:plugin > notia-business-server-${newVersion}.zip`);

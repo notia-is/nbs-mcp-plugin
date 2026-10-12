@@ -4,6 +4,17 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+**Bridge:** vyžaduje bridge s filtry seznamů (bankovní transakce, zásilky, nákupní objednávky, skladové doklady, inventury, vyhodnocení produktů) a bez `search` u seznamů, kde ho NBS ignoruje. Reporty (`report_*`) bridge nabízí jen s NBS Hubem 2.4.82 a novějším, který u nich vynucuje oprávnění.
+
+### Změněno
+- Plugin je ve složce `plugin/`, v portálu je Plugin path = `plugin`. Vývojové soubory (`scripts/`, `shared/`, `package.json`) se uživatelům neinstalují.
+- Skills popisují nové filtry seznamů místo `search`, který NBS u těchto seznamů ignoroval.
+- Rozcestník: hlavní nástroj prodejů je `dashboard_revenue_monthly`, účetnictví `balance_sheet_totals` (reporty se starším Hubem chybí).
+
+### Odstraněno
+- Zmínka o `helpdesk_dashboard_tickets_query` (bridge ho vyřadil, pro moje tikety slouží `dashboard_tickets_query`).
+- Poznámka o poli `avatar` u pracovníků (bridge ho vynechává).
+
 ## [1.0.3] – 2026-10-12
 
 **Bridge:** vyžaduje bridge a NBS Hub s opravami z testu konektoru (2026-10-09): parametry `roky` a `obchodnik` u meziročních reportů, `od`/`do` u `report_order_evaluation`, nástroje `accounting_documents_query` a `accounting_document_detail`, pole `kod` u `sales_products_search` a detail tiketu bez fotek.

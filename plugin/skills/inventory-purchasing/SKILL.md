@@ -30,7 +30,9 @@ description: Sklady, skladové zásoby, produkty a nákup z Notia Business Serve
 ## Hledání a stránkování
 
 - Produkt hledej v `sales_products_query` parametrem `nazev` (část názvu) nebo `kod` (přesný kód).
-- `search` v této oblasti funguje jen u `sales_products_search`. Ostatní seznamy, které ho nabízí, ho ignorují a vrátí vše.
+- Příjemky, výdejky a dodací listy zúžíš parametry `dokl_cis` (číslo nebo jeho část), `partner` (zkratka partnera) a `datum_od`/`datum_do`. Inventury podle `dokl_cis` a data inventury (`datum_od`/`datum_do`), nákupní objednávky podle `dokl_cis`, `partner` a období.
+- `report_products_evaluation` zúžíš stejně jako `sales_products_query` parametrem `kod` nebo `nazev`.
+- Ostatní seznamy v této oblasti (sklady, skladové karty) hledání nemají.
 
 ## Produkty
 

@@ -32,7 +32,7 @@ description: Pohledávky, závazky a platby z Notia Business Serveru (NBS). Pou�
 - `partner` se porovnává přesně včetně velikosti písmen. Prázdný seznam u firmy, která doklady má, znamená špatnou zkratku, ne chybu.
 - `company_receivables_query` a `company_payables_query` vrací totéž pro jednu firmu (zkratka v `partner`) a mají stejné parametry období.
 - Seznamy jsou seřazené od naposledy zapsaných dokladů a řazení nejde změnit.
-- `search` u bankovních transakcí nic nezúží, NBS ho ignoruje a vrátí celý seznam.
+- Bankovní transakce zúžíš parametry `datum_od`/`datum_do`, `var_symbol` (přesná shoda) a `protistrana` (část názvu protistrany).
 
 ## Pole pohledávek a závazků
 
@@ -49,7 +49,7 @@ description: Pohledávky, závazky a platby z Notia Business Serveru (NBS). Pou�
 
 - **Po splatnosti.** Pole pro to NBS nemá. Doklad je po splatnosti, když `splatnost` je před dneškem, `zustatek` je větší než 0 a `stav` je 1 nebo 2. Počet dní po splatnosti spočítej od `splatnost`.
 - **Saldo partnera.** Sečti `zustatek_kc` otevřených pohledávek a zvlášť otevřených závazků partnera (`receivables_query` a `payables_query` s `partner`). Když má doklady ve více měnách, uveď i součty v původních měnách.
-- **Zaplatil zákazník fakturu?** Rozhoduje `stav`, `zustatek` a `placeni` pohledávky. Bankovní transakci najdeš podle variabilního symbolu: `var` v transakci odpovídá `var_sym` dokladu.
+- **Zaplatil zákazník fakturu?** Rozhoduje `stav`, `zustatek` a `placeni` pohledávky. Bankovní transakci najdeš přes `banking_transactions_query` s `var_symbol` rovným `var_sym` dokladu.
 - **Závazky ke schválení.** `dashboard_payables_approval` vrací `{ success, data: { payables: [...] } }` jen s doklady, které čekají na přihlášeného uživatele. Pole jsou anglicky: `document`, `document_supplier` (číslo od dodavatele), `partner_name`, `due_date`, `total`, `balance`, `currency` a hotový příznak `overdue`.
 
 ## Bankovní transakce
