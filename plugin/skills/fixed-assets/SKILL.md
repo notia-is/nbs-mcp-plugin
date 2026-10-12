@@ -1,9 +1,9 @@
 ---
-name: helpdesk
-description: Helpdeskové tikety, reakce, výkazy práce a zákaznický portál z Notia Business Serveru (NBS). Použij, když se uživatel ptá na tikety nebo požadavky zákazníků, jejich stav, prioritu, řešitele a termíny, na své tikety k řešení nebo čekající na odpověď, na odpracované jednotky a výkazy práce, nebo na uživatele helpdeskového portálu, a je připojený konektor Notia Business Server.
+name: fixed-assets
+description: Dlouhodobý majetek z Notia Business Serveru (NBS). Použij, když se uživatel ptá na evidenci majetku, pořizovací a zůstatkovou cenu, účetní nebo daňové odpisy, kolik zbývá odepsat, technické zhodnocení, umístění majetku nebo jeho vyřazení, a je připojený konektor Notia Business Server.
 ---
 
-# Helpdesk v NBS
+# Dlouhodobý majetek v NBS
 
 ## Společná pravidla
 
@@ -18,48 +18,36 @@ description: Helpdeskové tikety, reakce, výkazy práce a zákaznický portál 
 
 | Otázka | Nástroj |
 |---|---|
-| Moje tikety | `dashboard_tickets_query` s `type` |
-| Všechny tikety, hledání podle předmětu | `helpdesk_tickets_query` |
-| Detail tiketu | `helpdesk_ticket_detail` |
-| Poslední reakce na tiket | `helpdesk_solution_detail` s `id_reseni` z tiketu |
-| Výkazy práce | `helpdesk_worklogs_query` |
-| Uživatelé zákaznického portálu | `helpdesk_portal_users_query` |
-| Jméno pracovníka podle kódu | `contract_workers_query` |
+| Seznam majetku a jeho hodnoty | `fixed_assets_query` |
+| Aktuální hodnoty jedné karty | `fixed_asset_detail` |
+| Účetní odpisy po obdobích | `fixed_asset_accounting_depreciation` |
+| Daňové odpisy po letech | `fixed_asset_tax_depreciation` |
+| Z čeho se skládá pořizovací cena | `fixed_asset_cost_components` |
+| Vyřazení z evidence | `fixed_asset_disposals` a `fixed_asset_detail` |
 
-## Moje tikety
+Všechny nástroje pro jednu kartu berou číselné `id` z `fixed_assets_query`. `fixed_assets_query` hledání nemá, kartu podle názvu nebo inventárního čísla proto najdeš procházením stránek. Seznam je seřazený od naposledy založených.
 
-- `dashboard_tickets_query` filtruje podle přihlášeného uživatele:
-  - `to_solve`: tikety, které řeším já, ve stavu nový nebo v řešení;
-  - `assigned`: tikety, které jsem zadal jiným řešitelům;
-  - `waiting`: tikety, které řeším já a čekají na odpověď.
-- `helpdesk_dashboard_tickets_query` parametr `type` nepoužívá a vrací všechny tikety. Pro otázky „moje tikety“ ho nepoužívej.
+## Pole majetku
 
-## Tikety
+- Inventární číslo je `kod` + `cislo`, dále `nazev`, `skupina`, `podskupina`.
+- Stav `stav`: 0 Nový, 1 V používání, 2 Vyřazený. Datum uvedení do užívání `uvedeni`, vyřazení `vyrazeni`.
+- Účetní hodnoty mají příponu `_uc`, daňové `_da`: pořizovací cena `pc_*`, oprávky `opr_*`, zůstatková cena `zc_*`. Kolik zbývá odepsat, je zůstatková cena.
+- Odpisy: účetní metoda `odpmet_uc` a doba `doba_uc`, daňová odpisová skupina `m_skupina_da` a příznak rovnoměrného odpisu `rovnom_da`.
+- Příznaky `hmotny`, `investicni`, `odpisovany`. Umístění `lokalita`, `budova`, `mistnost`, útvar `utvar`.
+- `fixed_asset_detail` má navíc hodnoty po částečném vyřazení `akt_pc_uc`, `akt_opr_uc`, `akt_zc_uc` (a `_da`). Pro „kolik má majetek teď“ použij tyto. Když karta neexistuje, vrátí prázdnou odpověď.
+- Vždy uveď, jestli jde o účetní, nebo daňové hodnoty.
 
-- `search` u `helpdesk_tickets_query` hledá v čísle tiketu, předmětu a oblasti problému, ne v partnerovi ani smlouvě. Seznam je seřazený od nejnovějších. Tikety partnera nebo smlouvy vyber podle polí `partner` a `zakazka`.
-- Pole: `id`, `predmet`, `partner`, smlouva `zakazka`, oblast `problem_oblast`, `zapsano`, zadavatel `zadavatel`, řešitel `resitel` (kód pracovníka), termín `termin_datum`, poslední reakce `reseni_datum`, odpracované jednotky `pocet_jednotek`, `fakturovat`.
-- Priorita `priorita`: 0 Normální, 1 Zvýšená, 2 Vysoká.
-- Otevřené tikety mají `aktivni` 1. Stav `stav`: 1 nový, 2 v řešení, 3 čeká na odpověď, 4 vyřešený, -1 zrušený. Další hodnoty (například odložený) označ jako „jiný stav“. V detailu tiketu je `stav` už text a číslo je v `stav_cislo`.
-- Po termínu je otevřený tiket, jehož `termin_datum` je před dneškem.
-- Řešitele uváděj jménem, když ho dohledáš přes `contract_workers_query`, jinak kódem.
+## Odpisy a složky ceny
 
-## Detail tiketu a reakce
+- Účetní odpisy: řádek za období `obdobi` s částkou `castka` za to období. Typ `typ`: 0 Počáteční oprávky, 1 Běžný, 2 Přerušení odpisů, 3 Vyřazení, 4 Částečné vyřazení.
+- Daňové odpisy: řádek za rok `rok` s částkou `castka`, stejným `typ`, názvem metody `metoda` a daňovou uznatelností `uznatelnost`.
+- Složky pořizovací ceny: `nazev`, `castka` v měně `mena`, `castka_kc` v Kč, `typ` (0 účetní i daňová, 1 jen účetní, 2 jen daňová) a `zvyseni` (0 navýšení ceny, 1 technické zhodnocení).
+- `fixed_asset_disposals` je záznam vyřazování množství a přesunů (`datum`, `mnozstvi`, `duvod`, umístění). Částky neobsahuje. Hodnotu a způsob vyřazení najdeš v detailu karty (`vyrazeno_uc`, `vyrazeno_da`, `zpusob_vyr_nazev`, `prijem_vyr`).
 
-- `popis` a `reseni_popis` jsou HTML. Shrň je vlastními slovy, HTML nevypisuj. Delší texty jsou zkrácené na 8000 znaků a mají příznak `<pole>_truncated`. V tom případě řekni, že celé znění je v NBS. Vložené obrázky jsou vynechané.
-- `zadani_poznamka_interni`, `reseni_poznamka_interni` a `poznamka_interni` jsou interní poznámky. Když je uvádíš, označ je jako interní, aby je uživatel neposlal zákazníkovi.
-- Kontaktní osobu (`kontaktni_osoba*`) uváděj, jen když se na ni uživatel ptá.
-- Navázaná objednávka je v `objednavka`, faktury v `pohledavky`.
+## Typické dotazy
 
-## Výkazy práce
-
-- `helpdesk_worklogs_query` nemá hledání a je seřazený od nejnovějších. Pro období procházej stránky a skonči, když jsou na celé stránce jen starší záznamy.
-- Pole: pracovník `kod_pracovnika`, `datum`, začátek `od` a konec `do`, `partner`, smlouva `kod_zakazky`, tiket `id_problemu`, jednotky `pocet_jednotek`, fakturovatelné `k_fakturaci`, `predmet`.
-- Dobu práce počítej z `od` a `do`. Pole `cas` nepoužívej.
-
-## Portál
-
-- `helpdesk_portal_users_query`: stav `hd_stav` (NONE, INVITED, ACTIVE, BLOCKED), firma `firma`, `dat_aktivace`.
-- Jména a e-maily jsou osobní údaje. Odpovídej počty a stavy, konkrétní osoby uváděj jen na přímý dotaz.
+- **Celková hodnota majetku.** Projdi všechny stránky a sečti `pc_uc` a `zc_uc` karet ve stavu 1. Pro daňový pohled použij `_da`.
+- **Odpisy za rok.** Souhrn za celý majetek konektor nevrací. Pro jednotlivé karty sečti účetní odpisy s `obdobi` v daném roce. U velké evidence to uživateli nabídni jen pro vybrané karty.
 
 ## Prezentace
 

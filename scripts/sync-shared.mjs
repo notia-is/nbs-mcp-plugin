@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Zapíše společné sekce ze shared/*.md do všech skills/*\/SKILL.md.
+ * Zapíše společné sekce ze shared/*.md do všech plugin/skills/*\/SKILL.md.
  *
  * Každý soubor v shared/ je jedna celá sekce včetně nadpisu (`## Chyby`). Ve SKILL.md
  * se nahradí sekce se stejným nadpisem až po další nadpis `## ` nebo konec souboru.
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const sharedDir = join(root, 'shared');
-const skillsDir = join(root, 'skills');
+const skillsDir = join(root, 'plugin', 'skills');
 
 const shared = readdirSync(sharedDir)
   .filter((file) => file.endsWith('.md'))
@@ -40,7 +40,7 @@ for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
   for (const { file: source, heading, body } of shared) {
     const index = parts.findIndex((part) => part.startsWith(`${heading}\n`));
     if (index === -1) {
-      console.error(`✖ skills/${entry.name}: chybí sekce „${heading.slice(3)}“ (shared/${source})`);
+      console.error(`✖ plugin/skills/${entry.name}: chybí sekce „${heading.slice(3)}“ (shared/${source})`);
       errors++;
       continue;
     }
@@ -49,7 +49,7 @@ for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
   const after = parts.join('');
   if (after !== before) {
     writeFileSync(file, after);
-    console.log(`✔ skills/${entry.name} aktualizován`);
+    console.log(`✔ plugin/skills/${entry.name} aktualizován`);
     changed++;
   }
 }

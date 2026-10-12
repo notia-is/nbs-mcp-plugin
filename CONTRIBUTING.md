@@ -1,14 +1,16 @@
 # Vývoj pluginu
 
-Návod pro úpravy skills, kontroly a vydání nové verze. Co plugin dělá pro uživatele, popisuje [README](README.md).
+Návod pro úpravy skills, kontroly a vydání nové verze. Co plugin dělá pro uživatele, popisuje [plugin/README.md](plugin/README.md).
 
 ## Struktura repa
 
 | Cesta | Obsah |
 |---|---|
-| `.claude-plugin/plugin.json` | manifest pluginu, včetně `version` |
-| `.mcp.json` | odkaz na konektor `https://mcp.notia.cz/mcp` |
-| `skills/*/SKILL.md` | skills pro jednotlivé oblasti NBS, `nbs-overview` je rozcestník |
+| `plugin/` | samotný plugin, jen ten se instaluje uživatelům (v portálu Plugin path = `plugin`) |
+| `plugin/.claude-plugin/plugin.json` | manifest pluginu, včetně `version` |
+| `plugin/.mcp.json` | odkaz na konektor `https://mcp.notia.cz/mcp` |
+| `plugin/skills/*/SKILL.md` | skills pro jednotlivé oblasti NBS, `nbs-overview` je rozcestník |
+| `plugin/README.md` | popis pluginu pro uživatele a adresář pluginů |
 | `shared/*.md` | společné sekce všech skills (Společná pravidla, Prezentace, Chyby) |
 | `scripts/` | generátor společných sekcí, validace a vydání verze |
 | `CHANGELOG.md` | změny po verzích, včetně požadované verze bridge |
@@ -16,24 +18,24 @@ Návod pro úpravy skills, kontroly a vydání nové verze. Co plugin dělá pro
 
 Skripty nemají závislosti, `npm install` není potřeba. Fungují i přes `pnpm run`.
 
-`shared/`, `scripts/`, `.github/`, `package.json` a tento soubor se do zipu pro claude.ai nedostanou (`.gitattributes`).
+Do složky `plugin/` patří jen manifest, `.mcp.json`, skills, README, LICENSE a NOTICE. Vývojové soubory (`shared/`, `scripts/`, `package.json`, CI) jsou mimo ni, takže se uživatelům neinstalují. Validace hlídá obojí. `LICENSE` je i v kořeni kvůli GitHubu a musí být stejná jako `plugin/LICENSE`.
 
 ## Úpravy skills
 
 - Názvy nástrojů a jejich parametry musí odpovídat katalogu bridge v monorepu `notia` (`apps/nbs-mcp-bridge/api/src/tools/mappings/`). Když bridge nástroj přidá, přejmenuje nebo změní parametry, upravte i skill.
 - Společné sekce se ve skills needitují. Upravte soubor v `shared/` a spusťte `npm run sync`, který je zapíše do všech skills. Ruční úpravu společné sekce ve skillu generátor přepíše.
-- Nový skill přidejte i do tabulky „Oblasti“ v `skills/nbs-overview/SKILL.md` a do tabulky skills v README.
+- Nový skill přidejte i do tabulky „Oblasti“ v `plugin/skills/nbs-overview/SKILL.md` a do tabulky skills v `plugin/README.md`.
 - Každou změnu zapište do sekce `## [Nevydáno]` v `CHANGELOG.md`. Když skill nově používá parametr, který starší bridge nemá, uveďte to tam.
 
 ## Kontroly
 
 ```bash
 npm run validate                    # totéž pouští CI u každého pushe a pull requestu
-claude plugin validate .
-claude --plugin-dir .               # test v Claude Code
+claude plugin validate plugin
+claude --plugin-dir plugin          # test v Claude Code
 ```
 
-Validace kontroluje manifest, `.mcp.json`, frontmatter skills, shodu společných sekcí se `shared/`, rozcestník, tabulku skills v README a záznam v CHANGELOG pro aktuální verzi.
+Validace kontroluje manifest, `.mcp.json`, frontmatter skills, shodu společných sekcí se `shared/`, rozcestník, tabulku skills v `plugin/README.md`, obsah složky `plugin/`, licenci a záznam v CHANGELOG pro aktuální verzi.
 
 ## Vydání verze
 
@@ -48,9 +50,9 @@ Validace kontroluje manifest, `.mcp.json`, frontmatter skills, shodu společnýc
    ```bash
    git push origin main vX.Y.Z
    ```
-4. Zip pro [developer portál](https://claude.ai/directory/manage) vytvořte z tagu:
+4. Portál bere plugin z repa ze složky `plugin` (Plugin path). Když je potřeba zip, vytvořte ho ze složky `plugin` v tagu:
    ```bash
-   git archive --format=zip --prefix=notia-business-server/ vX.Y.Z > notia-business-server-X.Y.Z.zip
+   git archive --format=zip --prefix=notia-business-server/ vX.Y.Z:plugin > notia-business-server-X.Y.Z.zip
    ```
 
 Kterou část verze zvednout:

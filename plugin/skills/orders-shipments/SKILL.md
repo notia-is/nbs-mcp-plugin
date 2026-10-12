@@ -1,9 +1,9 @@
 ---
-name: contracts
-description: Smlouvy se zákazníky, jejich sazby a předplacený kredit, SLA lhůty, fakturační podklady a pracovníci z Notia Business Serveru (NBS). Použij, když se uživatel ptá na smlouvy nebo servisní zakázky, jejich stav a platnost, co a za kolik se zákazníkovi účtuje, co je připravené k vyfakturování nebo kdo na smlouvách pracuje, a je připojený konektor Notia Business Server.
+name: orders-shipments
+description: Prodejní objednávky, zásilky, e-shopy a prodejny z Notia Business Serveru (NBS). Použij, když se uživatel ptá na objednávky zákazníků, jejich stav, úhradu nebo expedici, na zásilky, dopravce, sledovací čísla a doručení, na napojené e-shopy nebo prodejny (POS), a je připojený konektor Notia Business Server.
 ---
 
-# Smlouvy a fakturační podklady v NBS
+# Objednávky a zásilky v NBS
 
 ## Společná pravidla
 
@@ -18,40 +18,45 @@ description: Smlouvy se zákazníky, jejich sazby a předplacený kredit, SLA lh
 
 | Otázka | Nástroj |
 |---|---|
-| Seznam smluv | `contracts_query` |
-| Detail smlouvy, SLA lhůty | `contract_detail` s `code` |
-| Sazby a kredit smlouvy | `contract_charges_query` s `code` |
-| Fakturační podklady | `invoicing_requests_query`, detail `invoicing_request_detail` |
-| Pracovníci | `contract_workers_query` |
+| Objednávky zákazníků, objednávka podle čísla | `sales_orders_query` s `dokl_cis`, `ex_id` nebo `dokl_cis_odb` |
+| Zásilky jedné objednávky | `sales_order_shipments_query` s `id` objednávky |
+| Všechny zásilky | `shipments_query` |
+| Napojené e-shopy | `sales_websites` |
+| Prodejny přihlášeného uživatele | `pos_stores` |
+| Způsoby dopravy | `shipping_methods_query` |
 
-## Smlouvy
+## Hledání a období
 
-- Smlouvy jsou něco jiného než účetní zakázky z `orders_codebook_query`. Když uživatel řekne „zakázka“, z kontextu odhadni, kterou myslí, a když to nejde, zeptej se.
-- `search` u `contracts_query` nic nezúží. Seznam je seřazený podle kódu smlouvy. Smlouvy partnera najdeš podle pole `partner` (zkratka z `companies_query`).
-- Pole: kód `zakazka` (je to `code` pro další nástroje), `nazev`, `partner`, `partner_nazev`, platnost `datum_od` a `datum_do`, `obchodnik`, výchozí smlouva partnera `vychozi`.
-- Stav `stav`: 0 Nová, 1 Rozpracovaná (aktivní), 2 Uzavřená.
-- `contract_detail` přidává reakční lhůty podle priority `lhuta_normalni`, `lhuta_zvysena`, `lhuta_vysoka`, limit jednotek na tiket `limit_pro_ticket` a výchozí sazbu `vychozi_sazba`.
-- `manazer` a `vedouci` jsou interní čísla uživatelů. Jména k nim konektor nevrací, proto je neuváděj jako jména.
-- Kontaktní osoby (`partner_osoba_jmeno`) uváděj, jen když se na ně uživatel ptá.
+- Objednávku podle čísla najdeš přes `sales_orders_query`: naše číslo v `dokl_cis`, číslo z e-shopu v `ex_id`, číslo objednávky zákazníka v `dokl_cis_odb`. Stačí i část čísla, velikost písmen nerozhoduje.
+- Zásilky zúžíš parametry `dokl_cis` (číslo zásilky nebo jeho část), `sledovaci_cislo` (číslo u dopravce) a `datum_od`/`datum_do`.
+- Seznamy jsou seřazené od naposledy zapsaných záznamů a řazení nejde změnit. Pro období procházej stránky od začátku a skonči, když jsou na celé stránce jen záznamy starší než začátek období.
 
-## Sazby smlouvy
+## Pole objednávek
 
-- `contract_charges_query`: `produkt` a `produkt_nazev`, `mnozstvi`, `mj`, cena za jednotku `cena`, výchozí sazba `vychozi`.
-- Předplacený kredit: `kredit` (jednotky) a `cena_kredit`.
-- Typ `typ`: 1 služba, 2 kilometrovné. `search` hledá jen v kódu produktu.
+- Číslo: `dokl_cis` (řada `dokl_kod`, rok `dokl_rok`), číslo objednávky z e-shopu `ex_id`, číslo objednávky zákazníka `dokl_cis_odb`. `id` je interní číslo pro `sales_order_shipments_query`.
+- `datum`, zákazník `partner` (zkratka) a `partner_nazev`.
+- Částky: `castka` bez DPH, `dan`, `celkem` s DPH, měna `mena`. Úhrada: způsob `uhrada`, příznak `uhrazeno`.
+- Doprava `doprava`, kanál objednání `zp_objednani`, odeslání `odeslano`.
+- Stav zásilky objednávky je ve dvou polích: `stav_zasilky2` (ten Hub u objednávek zobrazuje ve sloupci „Stav zásilky“) a `stav_zasilky`. Obě používají číselník z části Stav zásilky níže. Prázdná hodnota znamená, že NBS k objednávce stav zásilky nemá. Když se pole liší nebo má objednávka víc zásilek, rozhoduje stav jednotlivých zásilek z `sales_order_shipments_query`.
+- Stav `stav`: 0 Nová, 1 Částečně potvrzená, 2 Potvrzená, 3 Ukončená, 4 Neřeší se.
 
-## Fakturační podklady
+## Pole zásilek
 
-- `search` u `invoicing_requests_query` hledá v názvu podkladu. Seznam je seřazený od nejnovějších.
-- Pole: `nazev`, `partner`, smlouva `zakazka`, období `mesic` a `rok`, pracovník `hd_pracovnik`, jednotky `pocet_jednotek` a fakturovatelné `pocet_jednotek_fakt`, vystavená faktura `doklad` a `id_pohl` (pro `receivable_detail`).
-- Stav `stav`: 0 Rozpracovaný, 1 Dokončený, 2 Schválený, 3 Vyfakturovaný, 4 Uzavřený. K vyfakturování čekají podklady ve stavu 1 a 2.
-- `invoicing_request_detail` přidává součty: výkazy `vykazy_pocet_jednotek` a `vykazy_pocet_jednotek_fakt`, čerpaný kredit `kredit_pocet_jednotek` a `kredit_castka`, částka k fakturaci po odečtení kreditu `polozky_castka_celkem`.
+- Číslo `dokl_cis`, `datum`, příjemce `prijemce_nazev` a `mesto_pri`, `stat_pri`.
+- Dopravce `carrier` / `prepravce`, způsob dopravy `doprava_nastaveni_nazev`, sledovací číslo `dokl_cis_poskyt_sluzby`, odkaz `tracking_url`.
+- Částky `castka` bez DPH a `castka_s_dph`, měna `mena`, `hmotnost`.
+- Vazby: objednávka `id_objp`, faktura `id_pohl` (pro `receivable_detail`), variabilní symbol `var_sym`.
+- Stav `stav_zasilky`, číselník je v části Stav zásilky.
+- U e-shopových objednávek bývají zákazníci soukromé osoby. Jména a adresy příjemců uváděj, jen když se uživatel ptá na konkrétní objednávku.
 
-## Pracovníci
+## Stav zásilky
 
-- `contract_workers_query` se `search` hledá podle jména. Pole: `kod`, `name`, `prijmeni`, `aktivni`, řešitel helpdesku `helpdesk_resitel`.
-- `kod` pracovníka najdeš v tiketech (`resitel`, `zadavatel_kod`), výkazech práce (`kod_pracovnika`) a podkladech (`hd_pracovnik`).
-- Pole `avatar` je fotka. Nikdy ji nevypisuj.
+Stejný číselník platí pro `stav_zasilky` u zásilek i pro `stav_zasilky` a `stav_zasilky2` u objednávek: 0 Nová, 1 Odeslaná, 2 Nepřevzatá, 3 Uhrazená, 4 Vrácená, 5 Reklamace, 6 Ztracená, 7 Částečně vrácená, 8 Doručená, 9 Chyba doručení, 10 Čekající na odeslání, 11 Připraveno dopravci, 12 Vrací se zpět, 13 Čeká na vyzvednutí.
+
+## Ostatní nástroje
+
+- `sales_websites` vrací `[{ id, name }]`, kde obě hodnoty jsou kód e-shopu.
+- `pos_stores` vrací `{ success, data: { stores: [{ store_id, store_name }] } }`, jen prodejny přidělené přihlášenému uživateli.
 
 ## Prezentace
 

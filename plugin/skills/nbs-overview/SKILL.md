@@ -1,9 +1,9 @@
 ---
-name: orders-shipments
-description: Prodejní objednávky, zásilky, e-shopy a prodejny z Notia Business Serveru (NBS). Použij, když se uživatel ptá na objednávky zákazníků, jejich stav, úhradu nebo expedici, na zásilky, dopravce, sledovací čísla a doručení, na napojené e-shopy nebo prodejny (POS), a je připojený konektor Notia Business Server.
+name: nbs-overview
+description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Použij, když se uživatel ptá, co všechno umíš z NBS, jaká data z NBS dokážeš zjistit nebo s čím mu pomůžeš, případně když dotaz na NBS nespadá do žádné konkrétní oblasti, a je připojený konektor Notia Business Server.
 ---
 
-# Objednávky a zásilky v NBS
+# Co umí konektor NBS
 
 ## Společná pravidla
 
@@ -14,49 +14,26 @@ description: Prodejní objednávky, zásilky, e-shopy a prodejny z Notia Busines
 - Data chodí jako čas v UTC: `2026-03-31T22:00:00.000Z` je 1. 4. 2026 v Česku. Před porovnáním s obdobím je převeď na český čas.
 - Relativní období („minulý měsíc“, „letos“, „Q1“) převeď na konkrétní data podle dnešního dne a v odpovědi je uveď.
 
-## Který nástroj kdy
+## Oblasti
 
-| Otázka | Nástroj |
-|---|---|
-| Objednávky zákazníků, objednávka podle čísla | `sales_orders_query` s `dokl_cis`, `ex_id` nebo `dokl_cis_odb` |
-| Zásilky jedné objednávky | `sales_order_shipments_query` s `id` objednávky |
-| Všechny zásilky | `shipments_query` |
-| Napojené e-shopy | `sales_websites` |
-| Prodejny přihlášeného uživatele | `pos_stores` |
-| Způsoby dopravy | `shipping_methods_query` |
+| Oblast | Skill | Hlavní nástroj | Na co se může uživatel ptát |
+|---|---|---|---|
+| Prodeje a tržby | `sales-analysis` | `dashboard_revenue_monthly` | vývoj tržeb, meziroční srovnání, obchodníci, největší zákazníci a produkty |
+| Pohledávky, závazky a platby | `receivables-payables` | `receivables_query` | vystavené a přijaté faktury, doklady po splatnosti, saldo partnera, platby na účtech |
+| Objednávky a zásilky | `orders-shipments` | `sales_orders_query` | objednávky zákazníků, expedice, zásilky a doručení, e-shopy a prodejny |
+| Sklady, produkty a nákup | `inventory-purchasing` | `sales_products_query` | zásoby a dostupnost, skladové doklady, ceny a marže, objednávky u dodavatelů |
+| Firmy a ceníky | `companies-pricing` | `companies_query` | údaje o zákaznících a dodavatelích, skupiny firem, ceníky, odeslané e-maily |
+| Účetnictví a výkazy | `accounting` | `balance_sheet_totals` | výsledovka, hospodářský výsledek, náklady a výnosy, aktiva a pasiva |
+| Dlouhodobý majetek | `fixed-assets` | `fixed_assets_query` | evidence majetku, odpisy, zůstatková cena, vyřazení |
+| Smlouvy a fakturační podklady | `contracts` | `contracts_query` | smlouvy, sazby a kredit, SLA lhůty, co je připravené k vyfakturování |
+| Helpdesk | `helpdesk` | `helpdesk_tickets_query` | tikety, jejich stav a řešitelé, výkazy práce, zákaznický portál |
 
-## Hledání a období
+## Jak odpovědět
 
-- Objednávku podle čísla najdeš přes `sales_orders_query`: naše číslo v `dokl_cis`, číslo z e-shopu v `ex_id`, číslo objednávky zákazníka v `dokl_cis_odb`. Stačí i část čísla, velikost písmen nerozhoduje.
-- U zásilek `search` nic nezúží.
-- Seznamy jsou seřazené od naposledy zapsaných záznamů a řazení nejde změnit. Pro období procházej stránky od začátku a skonči, když jsou na celé stránce jen záznamy starší než začátek období.
-
-## Pole objednávek
-
-- Číslo: `dokl_cis` (řada `dokl_kod`, rok `dokl_rok`), číslo objednávky z e-shopu `ex_id`, číslo objednávky zákazníka `dokl_cis_odb`. `id` je interní číslo pro `sales_order_shipments_query`.
-- `datum`, zákazník `partner` (zkratka) a `partner_nazev`.
-- Částky: `castka` bez DPH, `dan`, `celkem` s DPH, měna `mena`. Úhrada: způsob `uhrada`, příznak `uhrazeno`.
-- Doprava `doprava`, kanál objednání `zp_objednani`, odeslání `odeslano`.
-- Stav zásilky objednávky je ve dvou polích: `stav_zasilky2` (ten Hub u objednávek zobrazuje ve sloupci „Stav zásilky“) a `stav_zasilky`. Obě používají číselník z části Stav zásilky níže. Prázdná hodnota znamená, že NBS k objednávce stav zásilky nemá. Když se pole liší nebo má objednávka víc zásilek, rozhoduje stav jednotlivých zásilek z `sales_order_shipments_query`.
-- Stav `stav`: 0 Nová, 1 Částečně potvrzená, 2 Potvrzená, 3 Ukončená, 4 Neřeší se.
-
-## Pole zásilek
-
-- Číslo `dokl_cis`, `datum`, příjemce `prijemce_nazev` a `mesto_pri`, `stat_pri`.
-- Dopravce `carrier` / `prepravce`, způsob dopravy `doprava_nastaveni_nazev`, sledovací číslo `dokl_cis_poskyt_sluzby`, odkaz `tracking_url`.
-- Částky `castka` bez DPH a `castka_s_dph`, měna `mena`, `hmotnost`.
-- Vazby: objednávka `id_objp`, faktura `id_pohl` (pro `receivable_detail`), variabilní symbol `var_sym`.
-- Stav `stav_zasilky`, číselník je v části Stav zásilky.
-- U e-shopových objednávek bývají zákazníci soukromé osoby. Jména a adresy příjemců uváděj, jen když se uživatel ptá na konkrétní objednávku.
-
-## Stav zásilky
-
-Stejný číselník platí pro `stav_zasilky` u zásilek i pro `stav_zasilky` a `stav_zasilky2` u objednávek: 0 Nová, 1 Odeslaná, 2 Nepřevzatá, 3 Uhrazená, 4 Vrácená, 5 Reklamace, 6 Ztracená, 7 Částečně vrácená, 8 Doručená, 9 Chyba doručení, 10 Čekající na odeslání, 11 Připraveno dopravci, 12 Vrací se zpět, 13 Čeká na vyzvednutí.
-
-## Ostatní nástroje
-
-- `sales_websites` vrací `[{ id, name }]`, kde obě hodnoty jsou kód e-shopu.
-- `pos_stores` vrací `{ success, data: { stores: [{ store_id, store_name }] } }`, jen prodejny přidělené přihlášenému uživateli.
+- Uveď jen oblasti, jejichž hlavní nástroj konektor nabízí. Firma může nástroje zúžit a ostatní oblasti uživatel nemá k dispozici.
+- U každé oblasti napiš jednou větou, co z ní zjistíš, a přidej jednu nebo dvě ukázkové otázky, které si uživatel může rovnou položit.
+- Názvy nástrojů ani skillů uživateli nevypisuj.
+- Na konkrétní dotaz z některé oblasti odpověz podle jejího skillu.
 
 ## Prezentace
 

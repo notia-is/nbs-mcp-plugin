@@ -1,9 +1,9 @@
 ---
-name: nbs-overview
-description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Použij, když se uživatel ptá, co všechno umíš z NBS, jaká data z NBS dokážeš zjistit nebo s čím mu pomůžeš, případně když dotaz na NBS nespadá do žádné konkrétní oblasti, a je připojený konektor Notia Business Server.
+name: contracts
+description: Smlouvy se zákazníky, jejich sazby a předplacený kredit, SLA lhůty, fakturační podklady a pracovníci z Notia Business Serveru (NBS). Použij, když se uživatel ptá na smlouvy nebo servisní zakázky, jejich stav a platnost, co a za kolik se zákazníkovi účtuje, co je připravené k vyfakturování nebo kdo na smlouvách pracuje, a je připojený konektor Notia Business Server.
 ---
 
-# Co umí konektor NBS
+# Smlouvy a fakturační podklady v NBS
 
 ## Společná pravidla
 
@@ -14,26 +14,43 @@ description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Po
 - Data chodí jako čas v UTC: `2026-03-31T22:00:00.000Z` je 1. 4. 2026 v Česku. Před porovnáním s obdobím je převeď na český čas.
 - Relativní období („minulý měsíc“, „letos“, „Q1“) převeď na konkrétní data podle dnešního dne a v odpovědi je uveď.
 
-## Oblasti
+## Který nástroj kdy
 
-| Oblast | Skill | Hlavní nástroj | Na co se může uživatel ptát |
-|---|---|---|---|
-| Prodeje a tržby | `sales-analysis` | `report_sales_yoy` | vývoj tržeb, meziroční srovnání, obchodníci, největší zákazníci a produkty |
-| Pohledávky, závazky a platby | `receivables-payables` | `receivables_query` | vystavené a přijaté faktury, doklady po splatnosti, saldo partnera, platby na účtech |
-| Objednávky a zásilky | `orders-shipments` | `sales_orders_query` | objednávky zákazníků, expedice, zásilky a doručení, e-shopy a prodejny |
-| Sklady, produkty a nákup | `inventory-purchasing` | `sales_products_query` | zásoby a dostupnost, skladové doklady, ceny a marže, objednávky u dodavatelů |
-| Firmy a ceníky | `companies-pricing` | `companies_query` | údaje o zákaznících a dodavatelích, skupiny firem, ceníky, odeslané e-maily |
-| Účetnictví a výkazy | `accounting` | `report_pl_how` | výsledovka, hospodářský výsledek, náklady a výnosy, aktiva a pasiva |
-| Dlouhodobý majetek | `fixed-assets` | `fixed_assets_query` | evidence majetku, odpisy, zůstatková cena, vyřazení |
-| Smlouvy a fakturační podklady | `contracts` | `contracts_query` | smlouvy, sazby a kredit, SLA lhůty, co je připravené k vyfakturování |
-| Helpdesk | `helpdesk` | `helpdesk_tickets_query` | tikety, jejich stav a řešitelé, výkazy práce, zákaznický portál |
+| Otázka | Nástroj |
+|---|---|
+| Seznam smluv | `contracts_query` |
+| Detail smlouvy, SLA lhůty | `contract_detail` s `code` |
+| Sazby a kredit smlouvy | `contract_charges_query` s `code` |
+| Fakturační podklady | `invoicing_requests_query`, detail `invoicing_request_detail` |
+| Pracovníci | `contract_workers_query` |
 
-## Jak odpovědět
+## Smlouvy
 
-- Uveď jen oblasti, jejichž hlavní nástroj konektor nabízí. Firma může nástroje zúžit a ostatní oblasti uživatel nemá k dispozici.
-- U každé oblasti napiš jednou větou, co z ní zjistíš, a přidej jednu nebo dvě ukázkové otázky, které si uživatel může rovnou položit.
-- Názvy nástrojů ani skillů uživateli nevypisuj.
-- Na konkrétní dotaz z některé oblasti odpověz podle jejího skillu.
+- Smlouvy jsou něco jiného než účetní zakázky z `orders_codebook_query`. Když uživatel řekne „zakázka“, z kontextu odhadni, kterou myslí, a když to nejde, zeptej se.
+- `contracts_query` hledání nemá. Seznam je seřazený podle kódu smlouvy. Smlouvy partnera najdeš podle pole `partner` (zkratka z `companies_query`).
+- Pole: kód `zakazka` (je to `code` pro další nástroje), `nazev`, `partner`, `partner_nazev`, platnost `datum_od` a `datum_do`, `obchodnik`, výchozí smlouva partnera `vychozi`.
+- Stav `stav`: 0 Nová, 1 Rozpracovaná (aktivní), 2 Uzavřená.
+- `contract_detail` přidává reakční lhůty podle priority `lhuta_normalni`, `lhuta_zvysena`, `lhuta_vysoka`, limit jednotek na tiket `limit_pro_ticket` a výchozí sazbu `vychozi_sazba`.
+- `manazer` a `vedouci` jsou interní čísla uživatelů. Jména k nim konektor nevrací, proto je neuváděj jako jména.
+- Kontaktní osoby (`partner_osoba_jmeno`) uváděj, jen když se na ně uživatel ptá.
+
+## Sazby smlouvy
+
+- `contract_charges_query`: `produkt` a `produkt_nazev`, `mnozstvi`, `mj`, cena za jednotku `cena`, výchozí sazba `vychozi`.
+- Předplacený kredit: `kredit` (jednotky) a `cena_kredit`.
+- Typ `typ`: 1 služba, 2 kilometrovné. `search` hledá jen v kódu produktu.
+
+## Fakturační podklady
+
+- `search` u `invoicing_requests_query` hledá v názvu podkladu. Seznam je seřazený od nejnovějších.
+- Pole: `nazev`, `partner`, smlouva `zakazka`, období `mesic` a `rok`, pracovník `hd_pracovnik`, jednotky `pocet_jednotek` a fakturovatelné `pocet_jednotek_fakt`, vystavená faktura `doklad` a `id_pohl` (pro `receivable_detail`).
+- Stav `stav`: 0 Rozpracovaný, 1 Dokončený, 2 Schválený, 3 Vyfakturovaný, 4 Uzavřený. K vyfakturování čekají podklady ve stavu 1 a 2.
+- `invoicing_request_detail` přidává součty: výkazy `vykazy_pocet_jednotek` a `vykazy_pocet_jednotek_fakt`, čerpaný kredit `kredit_pocet_jednotek` a `kredit_castka`, částka k fakturaci po odečtení kreditu `polozky_castka_celkem`.
+
+## Pracovníci
+
+- `contract_workers_query` se `search` hledá podle jména. Pole: `kod`, `name`, `prijmeni`, `aktivni`, řešitel helpdesku `helpdesk_resitel`.
+- `kod` pracovníka najdeš v tiketech (`resitel`, `zadavatel_kod`), výkazech práce (`kod_pracovnika`) a podkladech (`hd_pracovnik`).
 
 ## Prezentace
 
