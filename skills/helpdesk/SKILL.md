@@ -45,9 +45,9 @@ description: Helpdeskové tikety, reakce, výkazy práce a zákaznický portál 
 
 ## Detail tiketu a reakce
 
-- `popis` a `reseni_popis` jsou HTML. Shrň je vlastními slovy, HTML nevypisuj.
+- `popis` a `reseni_popis` jsou HTML. Shrň je vlastními slovy, HTML nevypisuj. Delší texty jsou zkrácené na 8000 znaků a mají příznak `<pole>_truncated`. V tom případě řekni, že celé znění je v NBS. Vložené obrázky jsou vynechané.
 - `zadani_poznamka_interni`, `reseni_poznamka_interni` a `poznamka_interni` jsou interní poznámky. Když je uvádíš, označ je jako interní, aby je uživatel neposlal zákazníkovi.
-- `zadavatel_foto` a `resitel_foto` jsou fotky. Nikdy je nevypisuj. Kontaktní osobu (`kontaktni_osoba*`) uváděj, jen když se na ni uživatel ptá.
+- Kontaktní osobu (`kontaktni_osoba*`) uváděj, jen když se na ni uživatel ptá.
 - Navázaná objednávka je v `objednavka`, faktury v `pohledavky`.
 
 ## Výkazy práce

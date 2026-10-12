@@ -23,6 +23,8 @@ description: Účetnictví a výkazy z Notia Business Serveru (NBS). Použij, kd
 | Útvary, výkony, účetní zakázky, provozovny | `shapes_query`, `actions_query`, `orders_codebook_query`, `stores_list` |
 | Kód partnera v účetnictví | `accounting_partner_search` |
 | Účetní transakce a uzamčení | `journal_entries_query` |
+| Účetní doklady za rok | `accounting_documents_query` s `rok` |
+| Položky dokladu (částky, účty MD a Dal) | `accounting_document_detail` s `id` dokladu |
 
 ## Výsledovka (`report_pl_how`)
 
@@ -30,7 +32,7 @@ description: Účetnictví a výkazy z Notia Business Serveru (NBS). Použij, kd
 - Vrací `{ data }` s 11 řádky v pevném pořadí: Čistý obrat, COGS, VLC+FLC, MACO, Gross Margin, BTL, Marketing ostatní, Marketing celkem, Sales OHD, HQ, EBIT.
 - Každý řádek má `actual` (skutečnost), `budget` (rozpočet) a `last_year` (stejné období loni). `yoy` a `act_bdg` jsou rozdíly. `yoy_proc` a `act_bdg_proc` jsou indexy zaokrouhlené na dvě desetinná místa, kde 100 znamená beze změny: růst proti loňsku je `yoy_proc` − 100, plnění rozpočtu je `act_bdg_proc` %. Když je loňská hodnota nebo rozpočet 0, vrací 0, což neznamená pokles o 100 %. Ostatní přehledy vrací změny v jiném tvaru, srovnání je v skillu `sales-analysis`.
 - Řádek Gross Margin je v procentech (MACO / Čistý obrat), ne v penězích.
-- Výsledovka se nastavuje pro každou firmu zvlášť. Když nástroj vrátí chybu nebo samé nuly, řekni, že firma tento výkaz v NBS nemá, a použij `balance_sheet_totals`.
+- Výsledovka se nastavuje pro každou firmu zvlášť. Když ji firma nemá, vrátí nástroj „Požadovaná data v NBS neexistují“. Pak to řekni a použij `balance_sheet_totals`. Samé nuly znamenají, že za období nejsou data.
 - Plnění rozpočtu uváděj jako procento rozpočtu.
 
 ## Náklady, výnosy, aktiva a pasiva (`balance_sheet_totals`)
@@ -50,12 +52,17 @@ description: Účetnictví a výkazy z Notia Business Serveru (NBS). Použij, kd
 ## Ostatní nástroje
 
 - `accounting_partner_search` hledá podle části názvu (aspoň 2 znaky) a vrací `[{ partner, nazev }]`, 30 výsledků na stránku. Další stránka je `offset` 30, 60 a tak dál.
-- `journal_entries_query` vrací účetní transakce, tedy dávky dokladů: `nazev`, `popis`, datum založení `datum`, `uzavreno` a `uctovat_od`. Zápisy s datem do `uctovat_od` jsou uzamčené. Částky ani účty neobsahuje.
+- `journal_entries_query` vrací účetní transakce, tedy dávky dokladů: `nazev`, `popis`, datum založení `datum`, `uzavreno` a `uctovat_od`. Zápisy s datem do `uctovat_od` jsou uzamčené. Částky ani účty neobsahuje. Jeho `id` je ID transakce, ne dokladu.
+
+## Účetní doklady
+
+- `accounting_documents_query` s `rok` vrací doklady účetního roku: `id`, číslo `dokl_kod`, `dokl_cis` a `dokl_rok`, typ `dokl_typ`, `datum`, `obdobi`, `plneni`, `splatnost`, `stav`, `storno`, `kontrola`, `poznamka` a číslo dokladu od dodavatele `ev_cislo_dd`.
+- `accounting_document_detail` s `id` dokladu vrací hlavičku a položky `items`: číslo položky `cislo`, částku `castka` v Kč (`castka_mena` v měně `mena`), účet MD (`us_md`, `ua_md`) a Dal (`us_dal`, `ua_dal`) a partnery `partner_md_nazev`, `partner_dal_nazev`. Hlavička má navíc `pocet_radku`, `soucet_castek` a `radky_s_chybou`.
+- `journal_entry_item_detail` vrací všechna pole jedné položky. Bere `id` dokladu a `cislo` položky z detailu dokladu. Obvykle stačí položky z `accounting_document_detail`.
 
 ## Co konektor neumí
 
-- Obraty a zůstatky jednotlivých účtů, hlavní knihu po účtech ani seznam účetních zápisů konektor nevrací. Řekni to a odkaž uživatele do NBS.
-- `journal_entry_item_detail` použij, jen když uživatel sám zadá ID dokladu a číslo položky.
+- Obraty a zůstatky jednotlivých účtů ani hlavní knihu po účtech konektor nevrací. Účetní zápisy jdou číst jen po dokladech a sčítat z nich obrat účtu za delší období nejde. Řekni to a odkaž uživatele do NBS.
 - `balance_sheet_transaction_search` slouží k výběru transakcí při nastavení pracovní knihy. Částky nevrací, pro účetní dotazy ho nepoužívej.
 
 ## Prezentace

@@ -34,7 +34,7 @@ description: Sklady, skladové zásoby, produkty a nákup z Notia Business Serve
 
 ## Produkty
 
-- `sales_products_search` vyžaduje `search` a vrací `[{ id, name }]`. Tady je `id` kód produktu a `name` má tvar „KÓD (název)“. Pro `sales_product_detail` se toto `id` nehodí, číselné `id` k nalezenému kódu vrátí `sales_products_query` s `kod`.
+- `sales_products_search` vyžaduje `search` a vrací `[{ kod, name }]`, kde `name` má tvar „KÓD (název)“. Číselné `id` pro `sales_product_detail` vrátí `sales_products_query` s `kod`.
 - `sales_products_query` vrací u každého produktu číselné `id` i `kod` a je seřazený podle `kod`. Zúžíš ho parametrem `kod` (přesná shoda včetně velikosti písmen) nebo `nazev` (část názvu, bez ohledu na velikost písmen). Číselné `id` potřebují `sales_product_detail` a `sales_product_sales_history`.
 - Zásoba: `stav_skladu` je na skladě, `objednano` objednáno zákazníky, `na_ceste` objednáno u dodavatelů. `disponibilni_stav_skladu` = na skladě − objednáno zákazníky. `ocekavany_stav_skladu` = disponibilní + na cestě. Jednotka je `mj1`, množství uváděj vždy s jednotkou.
 - Ceny: prodejní `cena_pro`, průměrná skladová `prum_cena`, nákupní `nak_cena`, marže v procentech `marze`.
