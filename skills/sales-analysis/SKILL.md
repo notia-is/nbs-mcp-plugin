@@ -20,6 +20,7 @@ description: Analýza prodejů, tržeb a obratu z Notia Business Serveru (NBS). 
 |---|---|
 | Tržby po měsících a meziročně | `report_sales_yoy` |
 | Tržby podle obchodníků | `report_sales_partners_yoy` |
+| Ziskovost objednávek za období | `report_order_evaluation` s `od` a `do` |
 | Rychlé srovnání měsíce nebo roku k dnešku | `dashboard_revenue_monthly`, `dashboard_revenue_yearly` |
 | Tržby zákazníků (tento a minulý měsíc a rok) | `companies_query` |
 | Tržby skupin zákazníků | `company_groups_query` |
@@ -35,7 +36,7 @@ Každý přehled vrací meziroční změnu v jiném tvaru. Než změny porovná�
 
 | Zdroj | Pole | Tvar | +12 % vrací jako | Převod na růst v % |
 |---|---|---|---|---|
-| `report_sales_yoy`, `report_sales_partners_yoy` | `yearProcK`, `yearProcMoMK` | růst v procentech, nezaokrouhlený | `12` | beze změny |
+| `report_sales_yoy`, `report_sales_partners_yoy` | `yearProcK`, `yearProcMoMK` | růst v procentech, zaokrouhlený na dvě desetinná místa | `12` | beze změny |
 | `companies_query` | `sales_yoy`, `sales_this_month_yoy`, `sales_this_month_mom` | růst jako podíl, zaokrouhlený na celá procenta | `0.12` | × 100 |
 | `report_pl_how` (skill `accounting`) | `yoy_proc` | index, 100 = beze změny, zaokrouhlený na dvě desetinná místa | `112` | − 100 |
 
@@ -46,10 +47,11 @@ Každý přehled vrací meziroční změnu v jiném tvaru. Než změny porovná�
 ## Meziroční přehledy
 
 - `report_sales_yoy` vrací `{ total, values, maxHistory }`. `values` je 12 měsíců, `month` 0 je leden. `year0` je letošní rok, `year1` loňský a tak dál až po `maxHistory`.
+- Počet let určuje `roky` včetně letoška: u `report_sales_yoy` výchozí 5 (nejvýš 30), u `report_sales_partners_yoy` výchozí 2 (nejvýš 5). Vyžádej jen tolik let, kolik otázka potřebuje. Nejstarší vrácený rok má `yearProcK` 0, protože rok před ním v odpovědi není.
 - `yearProcK` je růst roku K proti roku před ním v procentech, `yearProcMoMK` změna proti předchozímu měsíci, také v procentech.
 - Letošní rok není celý: `total.year0` je jen od začátku roku, budoucí měsíce mají 0 a −100 %. Pro férové srovnání sečti v obou letech jen uzavřené měsíce.
 - Čtvrtletí a jiná období poskládej sečtením měsíců z `values`.
-- `report_sales_partners_yoy` má stejný tvar, jen každý měsíc v `values` má `data` (součet měsíce) a `children` (obchodníci, jméno v `data.name`). Řádek „Tržby bez obchodníka“ jsou prodeje bez přiřazeného obchodníka. Součet obchodníků se nemusí rovnat součtu měsíce. Report je pomalý, volej ho jednou.
+- `report_sales_partners_yoy` má stejný tvar, jen každý měsíc v `values` má `data` (součet měsíce) a `children` (obchodníci, jméno v `data.name`, kód v `data.obchodnik`). Obsahuje jen obchodníky, kteří mají ve vrácených letech nějaké tržby. Jednoho obchodníka vybere parametr `obchodnik` s jeho kódem. Když nástroj vrátí „Výsledek je příliš velký“, sniž `roky`, nebo se ptej po jednotlivých obchodnících. Řádek „Tržby bez obchodníka“ jsou prodeje bez přiřazeného obchodníka. Součet obchodníků se nemusí rovnat součtu měsíce. Report je pomalý, volej ho jednou.
 - „Partneři“ v názvu reportu znamenají obchodníky, ne zákazníky.
 
 ## Dashboard
@@ -67,15 +69,17 @@ Každý přehled vrací meziroční změnu v jiném tvaru. Než změny porovná�
 
 ## Libovolné období podle zákazníků
 
-- Celkové tržby za období složené z celých měsíců vezmi z `report_sales_yoy` (sečti měsíce z `values`), i pro roky zpět. Faktury na to neprocházej.
+- Celkové tržby za období složené z celých měsíců vezmi z `report_sales_yoy` (sečti měsíce z `values`), pro starší roky s vyšším `roky`. Faktury na to neprocházej.
 - Rozpad po zákaznících za období, které přehledy výše nepokryjí, spočítej z vystavených faktur: `receivables_query` s `plneni_od` a `plneni_do`, pro jednoho zákazníka navíc s `partner`. Další pravidla pro doklady jsou v skillu `receivables-payables`.
 - Když je faktur v období víc, než se podle společných pravidel vejde do konverzace, nenačítej je. Řekni uživateli, kolik jich je, a nabídni celkový součet z `report_sales_yoy`, kratší období nebo vybrané zákazníky přes `partner`.
 - Do tržeb počítej `castka_kc` (bez DPH) podle data `plneni`. Počítej jen faktury a dobropisy (`dokl_typ` 10 a 11) ve stavu 1 až 3, stejně jako přehledy prodejů NBS. Nové doklady (`stav` 0), stornované (-1), „Neřeší se“ (-2) a zálohové faktury (`dokl_typ` 12 a 13) vynech. Dobropisy (`dokl_typ` 11) mají `castka_kc` záporné, takže se při sečtení s fakturami samy odečtou. Kladný dobropis je chyba v datech, uživatele na něj upozorni.
 - Řekni, kolik faktur jsi sečetl a že jde o fakturované tržby.
 
-## Nepoužívej
+## Ziskovost objednávek
 
-- `report_order_evaluation` s rozsahem dat zatím nevrací výsledky. Ziskovost objednávek tímto konektorem nezjistíš.
+- `report_order_evaluation` s `od` a `do` (datum objednávky, YYYY-MM-DD) vrací u každé objednávky `orderNumber`, `orderDate`, zákazníka `customer`, tržby `sales`, náklady `costs`, zisk `profit` a rentabilitu `rentability`.
+- `orderType` zúží způsob objednání, kód je stejný jako v poli `zp_objednani` u `sales_orders_query`. Bez něj report vrací všechny objednávky.
+- Report vrací nejvýš 200 objednávek a počítá je jednotlivě, proto volte období nejvýš na několik měsíců. U delšího ho rozděl po měsících.
 
 ## Prezentace
 
