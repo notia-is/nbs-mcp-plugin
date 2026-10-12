@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+## [1.0.3] – 2026-10-12
+
 **Bridge:** vyžaduje bridge a NBS Hub s opravami z testu konektoru (2026-10-09): parametry `roky` a `obchodnik` u meziročních reportů, `od`/`do` u `report_order_evaluation`, nástroje `accounting_documents_query` a `accounting_document_detail`, pole `kod` u `sales_products_search` a detail tiketu bez fotek.
 
 ### Přidáno
