@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+## [1.0.5] – 2026-10-13
+
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84
 
 **Bridge:** seznamy vrací vždy `{ rows, total, truncated }`, prázdný detail jako „Požadovaná data v NBS neexistují“, filtry skladových karet, inventur (sklad) a položek nákupních objednávek (`id_objednavky`), nástroje `balance_sheet_years` a `balance_sheet_books`, `limit` u `report_order_evaluation`. **NBS Hub:** `limit` u vyhodnocení objednávek.
