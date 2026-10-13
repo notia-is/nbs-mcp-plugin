@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+**Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84
+
 ###
 - Aktualizovaný plugin.json s odkazem na dokumentaci a na samotný repozitář.
 - aktualizovaný soubor s ujednáním o ochraně osobních údajů, kde je přidaná kapitola pro využití Claude.
