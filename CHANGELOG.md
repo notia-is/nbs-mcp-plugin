@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+## [1.0.6] – 2026-10-13
+
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4
 
 ### Přidáno
