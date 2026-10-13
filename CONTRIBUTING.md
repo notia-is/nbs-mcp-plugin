@@ -14,7 +14,7 @@ Návod pro úpravy skills, kontroly a vydání nové verze. Co plugin dělá pro
 | `shared/*.md` | společné sekce všech skills (Společná pravidla, Prezentace, Chyby) |
 | `scripts/` | generátor společných sekcí, validace a vydání verze |
 | `CHANGELOG.md` | změny po verzích, včetně požadované verze bridge |
-| `package.json` | jen `npm run` skripty (`sync`, `validate`, `release:*`), bez závislostí a bez verze |
+| `package.json` | jen `npm run` skripty (`sync`, `validate`, `release:*`, `publish:directory`), bez závislostí a bez verze |
 
 Skripty nemají závislosti, `npm install` není potřeba. Fungují i přes `pnpm run`.
 
@@ -39,7 +39,10 @@ Validace kontroluje manifest, `.mcp.json`, frontmatter skills, shodu společnýc
 
 ## Vydání verze
 
-1. Sekce `## [Nevydáno]` v `CHANGELOG.md` musí popisovat změny verze, prázdnou skript odmítne.
+1. Sekce `## [Nevydáno]` v `CHANGELOG.md` musí popisovat změny verze a mít řádek s minimální verzí bridge (a případně Hubu), jinak ji skript odmítne:
+   ```markdown
+   **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84
+   ```
 2. Vydává se z aktuálního `main` s čistým pracovním stromem:
    ```bash
    git checkout main && git pull
@@ -61,4 +64,17 @@ Kterou část verze zvednout:
 - **minor**: nové schopnosti, například nový skill nebo využití nových nástrojů a parametrů, které už nasazený bridge má,
 - **major**: plugin potřebuje novější bridge a se starším nefunguje.
 
-Verzi, která potřebuje nový bridge, vydávejte až po jeho nasazení na instance zákazníků.
+## Publikace do adresáře pluginů
+
+Adresář Claude sleduje větev `directory` (v portálu **Branch or tag** = `directory`, **Plugin path** = `plugin`), ne `main`. Vydaná verze se tak k uživatelům dostane, až když na ni `directory` posunete:
+
+```bash
+NBS_ADMIN_TOKEN=$(cat …/admin-token) npm run publish:directory -- vX.Y.Z
+```
+
+- Skript přečte z CHANGELOG řádek „**Vyžaduje:**“ a přes `GET https://mcp.notia.cz/admin/versions` ověří, že všechny bridge instalace jsou připojené a mají aspoň požadovanou verzi bridge a Hubu. Když ne, vypíše, kdo zaostává, a nic neudělá.
+- `NBS_ADMIN_TOKEN` je token z `ADMIN_TOKEN_FILE` gatewaye (README mcp-notia, „Verze běžících aplikací“). Jinou gateway nastaví `NBS_GATEWAY_URL`.
+- `--force` publikuje i bez ověření, například když zákazník s nepřipojeným bridge o změně ví.
+- `directory` se posouvá jen dopředu na tagy z `main`. Do adresáře jde nový commit podle nastavení portálu: ke kontrole recenzentem Anthropicu, nebo rovnou.
+
+`main` tak může být napřed: novou verzi pluginu vydáte hned s bridge, do adresáře ji pošlete, až ho mají všichni zákazníci.

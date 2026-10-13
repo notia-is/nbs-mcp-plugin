@@ -145,7 +145,15 @@ const changelog = readText('CHANGELOG.md');
 if (!changelog) fail('chybí CHANGELOG.md');
 else if (manifest?.version && !changelog.includes(`## [${manifest.version}]`)) {
   fail(`CHANGELOG.md: chybí záznam „## [${manifest.version}]“ pro verzi z plugin.json`);
-} else ok(`CHANGELOG.md má záznam pro ${manifest?.version}`);
+} else {
+  // publish:directory podle tohohle řádku pozná, jaký bridge musí mít zákazníci, než verze půjde do adresáře
+  const start = changelog.indexOf(`## [${manifest.version}]`);
+  const end = changelog.indexOf('\n## ', start + 1);
+  const section = changelog.slice(start, end === -1 ? undefined : end);
+  if (!/^\*\*Vyžaduje:\*\* nbs-mcp-bridge ≥ \d+\.\d+\.\d+/m.test(section)) {
+    fail(`CHANGELOG.md: verze ${manifest.version} nemá řádek „**Vyžaduje:** nbs-mcp-bridge ≥ X.Y.Z“`);
+  } else ok(`CHANGELOG.md má záznam pro ${manifest?.version} i s požadovanou verzí bridge`);
+}
 
 // licence se instaluje s pluginem; kopie v kořeni je pro GitHub a musí být stejná
 const pluginLicense = readText(join(PLUGIN, 'LICENSE'));

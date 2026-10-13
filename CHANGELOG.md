@@ -4,7 +4,26 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+**Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84
+
+**Bridge:** seznamy vrací vždy `{ rows, total, truncated }`, prázdný detail jako „Požadovaná data v NBS neexistují“, filtry skladových karet, inventur (sklad) a položek nákupních objednávek (`id_objednavky`), nástroje `balance_sheet_years` a `balance_sheet_books`, `limit` u `report_order_evaluation`. **NBS Hub:** `limit` u vyhodnocení objednávek.
+
+### Přidáno
+- README: předpoklady (zapnutá integrace, oprávnění `mcp.use`, bridge) a sekce „Když něco nejde“ s hláškami a postupem.
+- Chyby: „Příliš mnoho požadavků“ a prázdný detail.
+- Účetnictví: spočítané roky hlavní knihy (`balance_sheet_years`) a pracovní knihy (`balance_sheet_books`).
+- Sklady a nákup: skladové karty podle skladu a produktu, inventury podle skladu, položky jedné nákupní objednávky.
+
+### Změněno
+- README: opravené věty o tom, kdo vidí heslo a data, a jak propojení zrušit.
+- Společná pravidla: tvar seznamů `{ rows, total, truncated }`; u širokých seznamů `limit` nejvýš 100.
+- `report_order_evaluation`: vyhodnotí nejvýš `limit` objednávek, při `truncated` zkrátit období; `rentability` je přirážka.
+- `balance_sheet_totals`: hlavní kniha jen s `roks`, období `RRRRMM`; nuly za nespočítaný rok nejsou nulové účetnictví.
+- Upozornění, že dashboard, firmy a produkty jsou z předpočítaných součtů a jak se liší `marze` v seznamu a v detailu produktu.
+
 ## [1.0.4] – 2026-10-13
+
+**Vyžaduje:** nbs-mcp-bridge ≥ 1.0.3, NBS Hub ≥ 2.4.82
 
 **Bridge:** vyžaduje bridge s filtry seznamů (bankovní transakce, zásilky, nákupní objednávky, skladové doklady, inventury, vyhodnocení produktů) a bez `search` u seznamů, kde ho NBS ignoruje. Reporty (`report_*`) bridge nabízí jen s NBS Hubem 2.4.82 a novějším, který u nich vynucuje oprávnění.
 
