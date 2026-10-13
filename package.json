@@ -7,6 +7,7 @@
     "validate": "node scripts/validate.mjs",
     "release:patch": "node scripts/release.mjs patch",
     "release:minor": "node scripts/release.mjs minor",
-    "release:major": "node scripts/release.mjs major"
+    "release:major": "node scripts/release.mjs major",
+    "publish:directory": "node scripts/publish-directory.mjs"
   }
 }

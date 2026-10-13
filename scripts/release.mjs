@@ -56,8 +56,12 @@ const start = changelog.indexOf(`${UNRELEASED}\n`);
 if (start === -1) die(`CHANGELOG.md nemá sekci „${UNRELEASED}“.`);
 const bodyStart = start + UNRELEASED.length + 1;
 const bodyEnd = changelog.indexOf('\n## ', bodyStart);
-if (!changelog.slice(bodyStart, bodyEnd === -1 ? undefined : bodyEnd).trim()) {
+const unreleased = changelog.slice(bodyStart, bodyEnd === -1 ? undefined : bodyEnd);
+if (!unreleased.trim()) {
   die(`sekce „${UNRELEASED}“ v CHANGELOG.md je prázdná, zapiš do ní, co se ve verzi mění.`);
+}
+if (!/^\*\*Vyžaduje:\*\* nbs-mcp-bridge ≥ \d+\.\d+\.\d+/m.test(unreleased)) {
+  die(`sekce „${UNRELEASED}“ nemá řádek „**Vyžaduje:** nbs-mcp-bridge ≥ X.Y.Z“ (podle něj se pouští publish:directory).`);
 }
 
 const manifestText = readFileSync(MANIFEST, 'utf8');
