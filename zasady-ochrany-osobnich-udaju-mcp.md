@@ -38,3 +38,18 @@ Web notia.com používá soubory cookie pro analýzu návštěvnosti (Google Ana
 ## Kontakt
 
 V případě dotazů ohledně ochrany osobních údajů nás kontaktujte na adrese notia@notia.com nebo přes kontaktní formulář.
+
+---
+
+## Connecting Notia Business Server with Claude
+
+Users of Notia Business Server (NBS) can connect their account to Claude, the AI assistant by Anthropic. Claude can then read data from NBS at the user's request and work with it in the conversation. The connection is read-only; Claude does not create or change anything in NBS.
+
+- Users sign in directly to their company's NBS. Neither Claude nor the mcp.notia.cz service, through which the connection runs, ever sees the password.
+- Claude receives only the data it asks for in the conversation, and only within the permissions of the signed-in NBS user.
+- The mcp.notia.cz service only passes data from NBS through and does not store it. It keeps only a record of the connection (for at most 30 days after sign-in) and operational logs for security purposes (e.g. time, user, feature used, IP address), without the content of queries or results.
+- Only strictly necessary cookies are used during sign-in.
+- Data that Claude receives becomes part of the conversation and is processed by Anthropic under its [privacy policy](https://www.anthropic.com/legal/privacy).
+- The connection can be revoked at any time in the NBS user profile ("Active connections" section). A connection that is not revoked expires on its own.
+
+Questions about the connection: [helpdesk@notia.com](mailto:helpdesk@notia.com).
