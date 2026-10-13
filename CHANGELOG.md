@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+## [1.0.4] – 2026-10-13
+
 **Bridge:** vyžaduje bridge s filtry seznamů (bankovní transakce, zásilky, nákupní objednávky, skladové doklady, inventury, vyhodnocení produktů) a bez `search` u seznamů, kde ho NBS ignoruje. Reporty (`report_*`) bridge nabízí jen s NBS Hubem 2.4.82 a novějším, který u nich vynucuje oprávnění.
 
 ### Změněno
