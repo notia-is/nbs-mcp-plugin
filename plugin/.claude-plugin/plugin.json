@@ -18,5 +18,8 @@
     "faktury",
     "sklad",
     "ucetnictvi"
-  ]
+  ],
+  "supportUrl": "https://notia.com/pro-uzivatele-support/",
+  "privacyPolicyUrl": "https://notia.com/ochrana-soukromi/",
+  "icon": "./icon.png"
 }

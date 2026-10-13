@@ -11,6 +11,7 @@ Návod pro úpravy skills, kontroly a vydání nové verze. Co plugin dělá pro
 | `plugin/.mcp.json` | odkaz na konektor `https://mcp.notia.cz/mcp` |
 | `plugin/skills/*/SKILL.md` | skills pro jednotlivé oblasti NBS, `nbs-overview` je rozcestník |
 | `plugin/README.md` | popis pluginu pro uživatele a adresář pluginů |
+| `plugin/icon.png` | ikona pro adresář pluginů (`icon` v `plugin.json`), PNG/JPEG/GIF/WebP pod 256 KiB |
 | `shared/*.md` | společné sekce všech skills (Společná pravidla, Prezentace, Chyby) |
 | `scripts/` | generátor společných sekcí, validace a vydání verze |
 | `CHANGELOG.md` | změny po verzích, včetně požadované verze bridge |
@@ -35,7 +36,7 @@ claude plugin validate plugin
 claude --plugin-dir plugin          # test v Claude Code
 ```
 
-Validace kontroluje manifest, `.mcp.json`, frontmatter skills, shodu společných sekcí se `shared/`, rozcestník, tabulku skills v `plugin/README.md`, obsah složky `plugin/`, licenci a záznam v CHANGELOG pro aktuální verzi.
+Validace kontroluje manifest (včetně toho, že URL pro adresář jsou `https://` a ikona má povolený formát a velikost), `.mcp.json`, frontmatter skills, shodu společných sekcí se `shared/`, rozcestník, tabulku skills v `plugin/README.md`, obsah složky `plugin/`, licenci a záznam v CHANGELOG pro aktuální verzi.
 
 ## Vydání verze
 

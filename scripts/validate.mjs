@@ -16,6 +16,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 /** Složka, kterou portál instaluje uživatelům — jen samotný plugin. */
 const PLUGIN = 'plugin';
 const PLUGIN_ENTRIES = ['.claude-plugin', '.mcp.json', 'skills', 'README.md', 'LICENSE', 'NOTICE'];
+/** Pole manifestu, která čte adresář pluginů (Claude Code je ignoruje) — musí to být https URL. */
+const DIRECTORY_URL_FIELDS = ['homepage', 'documentationUrl', 'supportUrl', 'privacyPolicyUrl', 'termsOfServiceUrl'];
+/** Ikona pro adresář pluginů: formáty podle pre-submission checklistu, poznají se podle prvních bajtů. */
+const ICON_MAX_BYTES = 256 * 1024;
+const ICON_FORMATS = [
+  { name: 'PNG', test: (b) => b.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) },
+  { name: 'JPEG', test: (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { name: 'GIF', test: (b) => ['GIF87a', 'GIF89a'].includes(b.subarray(0, 6).toString('latin1')) },
+  { name: 'WebP', test: (b) => b.subarray(0, 4).toString('latin1') === 'RIFF' && b.subarray(8, 12).toString('latin1') === 'WEBP' },
+];
 
 const errors = [];
 const ok = (message) => console.log(`✔ ${message}`);
@@ -58,13 +68,44 @@ if (manifest) {
   if (!/^\d+\.\d+\.\d+/.test(manifest.version ?? '')) fail('plugin.json: version musí být semver');
   if (!manifest.description?.trim()) fail('plugin.json: chybí description');
   if (!manifest.author?.name) fail('plugin.json: chybí author.name');
+  for (const field of DIRECTORY_URL_FIELDS) {
+    if (manifest[field] === undefined) continue;
+    let url;
+    try {
+      url = new URL(manifest[field]);
+    } catch {
+      // neplatná URL — ohlásí podmínka níž
+    }
+    if (url?.protocol !== 'https:') fail(`plugin.json: ${field} musí být https:// URL (mailto: adresář nepřijme)`);
+  }
   ok(`manifest ${manifest.name}@${manifest.version}`);
+}
+
+// ikona: soubor uvnitř plugin/, cesta relativně ke kořeni pluginu (ne k .claude-plugin/)
+let iconEntry;
+if (manifest?.icon !== undefined) {
+  const icon = String(manifest.icon);
+  const relative = icon.replace(/^\.\//, '');
+  const iconPath = join(root, PLUGIN, relative);
+  if (!icon.startsWith('./') || relative.split('/').includes('..')) {
+    fail(`plugin.json: icon musí být cesta uvnitř pluginu ve tvaru ./soubor (je „${icon}“)`);
+  } else if (!existsSync(iconPath)) {
+    fail(`plugin.json: ikona ${icon} neexistuje (hledá se v plugin/${relative})`);
+  } else {
+    iconEntry = relative.split('/')[0];
+    const bytes = readFileSync(iconPath);
+    const format = ICON_FORMATS.find((f) => f.test(bytes));
+    if (!format) fail(`plugin/${relative}: ikona musí být PNG, JPEG, GIF nebo WebP`);
+    else if (bytes.length >= ICON_MAX_BYTES) fail(`plugin/${relative}: ikona má ${Math.round(bytes.length / 1024)} KiB, limit je 256 KiB`);
+    else ok(`ikona plugin/${relative} (${format.name}, ${Math.round(bytes.length / 1024)} KiB)`);
+  }
 }
 const extra = readdirSync(join(root, PLUGIN, '.claude-plugin')).filter((f) => f !== 'plugin.json');
 if (extra.length) fail(`.claude-plugin/ smí obsahovat jen plugin.json (navíc: ${extra.join(', ')})`);
 if (existsSync(join(root, PLUGIN, 'bin'))) fail('plugin/bin/ zablokuje instalaci na claude.ai a v Cowork');
-const unexpected = readdirSync(join(root, PLUGIN)).filter((entry) => !PLUGIN_ENTRIES.includes(entry));
-if (unexpected.length) fail(`plugin/ smí obsahovat jen ${PLUGIN_ENTRIES.join(', ')} (navíc: ${unexpected.join(', ')})`);
+const allowedEntries = iconEntry ? [...PLUGIN_ENTRIES, iconEntry] : PLUGIN_ENTRIES;
+const unexpected = readdirSync(join(root, PLUGIN)).filter((entry) => !allowedEntries.includes(entry));
+if (unexpected.length) fail(`plugin/ smí obsahovat jen ${allowedEntries.join(', ')} (navíc: ${unexpected.join(', ')})`);
 else ok('plugin/ obsahuje jen soubory pluginu');
 
 // MCP konektor
