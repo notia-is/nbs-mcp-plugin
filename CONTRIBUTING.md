@@ -70,11 +70,12 @@ Kterou část verze zvednout:
 Adresář Claude sleduje větev `directory` (v portálu **Branch or tag** = `directory`, **Plugin path** = `plugin`), ne `main`. Vydaná verze se tak k uživatelům dostane, až když na ni `directory` posunete:
 
 ```bash
-NBS_ADMIN_TOKEN=$(cat …/admin-token) npm run publish:directory -- vX.Y.Z
+read -s NBS_ADMIN_TOKEN && export NBS_ADMIN_TOKEN   # vložte token ze správce hesel
+npm run publish:directory -- vX.Y.Z
 ```
 
 - Skript přečte z CHANGELOG řádek „**Vyžaduje:**“ a přes `GET https://mcp.notia.cz/admin/versions` ověří, že všechny bridge instalace jsou připojené a mají aspoň požadovanou verzi bridge a Hubu. Když ne, vypíše, kdo zaostává, a nic neudělá.
-- `NBS_ADMIN_TOKEN` je token z `ADMIN_TOKEN_FILE` gatewaye (README mcp-notia, „Verze běžících aplikací“). Jinou gateway nastaví `NBS_GATEWAY_URL`.
+- `NBS_ADMIN_TOKEN` je hodnota (ne cesta k souboru) tokenu z `ADMIN_TOKEN_FILE` gatewaye. Když si ji uložíte do souboru, tak mimo repo a s `chmod 600`, např. `NBS_ADMIN_TOKEN=$(cat ~/.config/notia/admin-token)`. Jak token vytvořit, popisuje README mcp-notia („Verze běžících aplikací“). Jinou gateway nastaví `NBS_GATEWAY_URL`.
 - `--force` publikuje i bez ověření, například když zákazník s nepřipojeným bridge o změně ví.
 - `directory` se posouvá jen dopředu na tagy z `main`. Do adresáře jde nový commit podle nastavení portálu: ke kontrole recenzentem Anthropicu, nebo rovnou.
 
