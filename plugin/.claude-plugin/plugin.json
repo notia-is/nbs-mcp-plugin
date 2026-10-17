@@ -22,6 +22,6 @@
   "repository": "https://github.com/notia-is/nbs-mcp-plugin",
   "documentationUrl": "https://github.com/notia-is/nbs-mcp-plugin/tree/main/plugin",
   "supportUrl": "https://notia.com/pro-uzivatele-support/",
-  "privacyPolicyUrl": "https://notia.com/ochrana-soukromi/",
+  "privacyPolicyUrl": "https://notia.com/nbs-claude-privacy/",
   "icon": "./icon.png"
 }

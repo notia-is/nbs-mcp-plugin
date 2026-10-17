@@ -4,6 +4,11 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+**Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84
+
+### Změněno
+- Odkaz na zásady ochrany osobních údajů vede na stránku pro plugin: <https://notia.com/nbs-claude-privacy/> (`privacyPolicyUrl`, README).
+
 ## [1.0.7] – 2026-10-13
 
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84

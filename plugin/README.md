@@ -44,7 +44,7 @@ Plugin obsahuje skills, které Claude vedou při výběru nástrojů, dohledán�
 - Doménu firmy `mcp.notia.cz` použije jen k vyhledání adresy vašeho NBS Hubu v adresáři Notia.
 - Samotný plugin neobsahuje přihlašovací údaje ani klíče. `mcp.notia.cz` ukládá jen záznam o propojení (nejdéle 30 dní) a auditní záznam bez obsahu dotazů. Podrobnosti jsou v zásadách níže.
 - Propojení zrušíte v NBS v profilu, sekce „Aktivní propojení“. Odpojením konektoru v Claude ho Claude přestane používat. Neodvolané propojení vyprší nejpozději 30 dní po přihlášení.
-- Jak Notia zpracovává osobní údaje, popisují [zásady ochrany osobních údajů](https://notia.com/ochrana-soukromi/).
+- Jak Notia zpracovává osobní údaje, popisují [zásady ochrany osobních údajů](https://notia.com/nbs-claude-privacy/).
 
 ## Když něco nejde
 
@@ -66,10 +66,10 @@ Chybové hlášky obsahují „ID požadavku“. Při hlášení problému ho po
 
 Connects Claude to Notia Business Server (NBS), an ERP used by Czech companies. Ask about revenue and sales, receivables and payables, orders and shipments, inventory, financial statements, fixed assets, contracts or helpdesk tickets and Claude answers from your live NBS data. Access is read-only and always limited to the permissions of your own NBS account. You sign in on your company's own NBS Hub login page; your password is never sent to `mcp.notia.cz` or to Claude. Queries (tool name, date range and filters) are sent through `mcp.notia.cz` to your company's NBS Hub, and the results are returned to your Claude conversation; `mcp.notia.cz` passes them through without storing them. It keeps only the authorization record (at most 30 days) and an audit log without query contents. The plugin itself contains no credentials. Requirements: your company has the NBS integration with Claude set up and enabled, and your NBS user has the `mcp.use` permission.
 
-Support: [helpdesk@notia.com](mailto:helpdesk@notia.com). Privacy policy: <https://notia.com/ochrana-soukromi/>.
+Support: [helpdesk@notia.com](mailto:helpdesk@notia.com). Privacy policy: <https://notia.com/nbs-claude-privacy/>.
 
 ## Podpora
 
 - Podpora: [helpdesk@notia.com](mailto:helpdesk@notia.com)
-- Zásady ochrany osobních údajů: <https://notia.com/ochrana-soukromi/>
+- Zásady ochrany osobních údajů: <https://notia.com/nbs-claude-privacy/>
 - Web: <https://notia.com>
