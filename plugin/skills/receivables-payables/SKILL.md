@@ -1,6 +1,6 @@
 ---
 name: receivables-payables
-description: Pohledávky, závazky a platby z Notia Business Serveru (NBS). Použij, když se uživatel ptá na vystavené nebo přijaté faktury, neuhrazené doklady a doklady po splatnosti, saldo partnera, kdo nám dluží nebo komu dlužíme, závazky čekající na schválení, bankovní transakce nebo to, jestli a kdy přišla platba, a je připojený konektor Notia Business Server.
+description: Pohledávky, závazky a platby z Notia Business Serveru (NBS). Použij, když se uživatel ptá na vystavené nebo přijaté faktury, neuhrazené doklady a doklady po splatnosti, saldo partnera, kdo nám dluží nebo komu dlužíme, součty a obraty faktur za období podle partnerů, produktů nebo měsíců, závazky čekající na schválení, bankovní transakce nebo to, jestli a kdy přišla platba, a je připojený konektor Notia Business Server.
 ---
 
 # Pohledávky, závazky a platby v NBS
@@ -23,6 +23,10 @@ description: Pohledávky, závazky a platby z Notia Business Serveru (NBS). Pou�
 | Přijaté faktury (závazky) | `payables_query`, detail `payable_detail`, řádky `payable_items_query` |
 | Doklady jednoho partnera | `companies_query` → pole `shortcut` → `receivables_query` / `payables_query` s `partner` = `shortcut` |
 | Řádky napříč všemi doklady | `receivables_all_items_query`, `payables_all_items_query` |
+| Součet faktur za období (částka v Kč, počet položek) | `receivables_summary`, `payables_summary` |
+| Faktury za období podle partnera, produktu, obchodníka, útvaru, výkonu, zakázky nebo měny | `receivables_breakdown`, `payables_breakdown` |
+| Vývoj po letech, čtvrtletích a měsících, žebříček největších partnerů nebo produktů | `receivables_turnover`, `payables_turnover` |
+| Položky faktur za období s filtry | `receivables_transactions`, `payables_transactions` |
 | Závazky čekající na mé schválení | `dashboard_payables_approval` |
 | Platby na bankovních účtech | `banking_transactions_query`, detail `banking_transaction_detail` |
 
@@ -34,6 +38,18 @@ description: Pohledávky, závazky a platby z Notia Business Serveru (NBS). Pou�
 - `company_receivables_query` a `company_payables_query` vrací totéž pro jednu firmu (zkratka v `partner`) a mají stejné parametry období.
 - Seznamy jsou seřazené od naposledy zapsaných dokladů a řazení nejde změnit.
 - Bankovní transakce zúžíš parametry `datum_od`/`datum_do`, `var_symbol` (přesná shoda) a `protistrana` (část názvu protistrany).
+
+## Souhrny, rozpady a obraty za období
+
+- Na součty za období používej `*_summary`, `*_breakdown` a `*_turnover` místo procházení seznamů dokladů. Sečtou všechny faktury v NBS najednou.
+- Všechny mají povinné `from` a `to` (YYYY-MM-DD, obě hranice včetně). Zúžit jdou parametry `partner` (zkratka `shortcut` z `companies_query`), `partner_group`, `product`, `product_group`, `department`, `operation`, `contract` a `merchant`.
+- `*_summary` vrací `sale` (částka v Kč), `amount` (množství) a `count` (počet položek, ne dokladů).
+- `*_breakdown` seskupí podle `group_by`: jeden nebo víc sloupců oddělených čárkou z `partner`, `produkt`, `mena`, `obchodnik`, `utvar`, `vykon`, `zakazka`. Řádek má `sale_czk`, `quantity`, `count` a hodnoty sloupců s klíči velkými písmeny (`PARTNER`, `PRODUKT`). Časové sloupce rozpad nemá.
+- `*_turnover` umí navíc `rok`, `ctvrtleti` a `mesic` (např. `group_by` `rok,mesic` pro vývoj po měsících). Řádek má `metric` a sloupce velkými písmeny (`ROK`, `MESIC`). `metric` je ve výchozím stavu částka v Kč, `mnozstvi` nebo `pocet` ji změní. `date_type` určuje, podle kterého data se faktura zařadí do období: `obdobi` (účetní období, výchozí), `vystaveni` nebo `plneni` (DUZP). Pro žebříček „top N“ pošli `top` s řazením podle metriky (výchozí sestupně).
+- `*_transactions` vrací jednotlivé položky faktur (doklad `document_code` a `document_number`, partner, produkt, `date`, `amount_czk`, `vat_czk`, `quantity`). Projdi je jen tehdy, když uživatel chce konkrétní položky. Na součty je nepoužívej.
+- Rozpad a položky mají stránkování (`limit` výchozí 50, `offset`). `total` je počet všech skupin nebo položek.
+- Součty počítá NBS z položek faktur, takže se mohou lišit od součtu `castka_kc` hlaviček z `receivables_query` a `payables_query`, například o zaokrouhlení. Uveď, z kterého přehledu číslo pochází.
+- Když konektor tyto nástroje nenabízí (starší NBS Hub), spočítej součty ze seznamů dokladů jako dřív a řekni, kolik dokladů jsi sečetl.
 
 ## Pole pohledávek a závazků
 

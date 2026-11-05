@@ -4,6 +4,17 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+**Vyžaduje:** nbs-mcp-bridge ≥ 1.0.5, NBS Hub ≥ 2.4.106
+
+**Bridge:** nástroje `receivables_summary`, `receivables_breakdown`, `receivables_transactions`, `receivables_turnover` a stejné `payables_*` nad novými přehledy NBS Hubu (`receivables/stats/*`, `payables/payables/stats/*`). Se starším Hubem je bridge nenabídne.
+
+### Přidáno
+- Pohledávky a závazky: souhrn, rozpad podle skupin, položky a obrat faktur za libovolné období (sekce „Souhrny, rozpady a obraty za období“).
+- Prodeje: fakturované tržby za libovolné období podle zákazníků, produktů a obchodníků a jejich vývoj po měsících z `receivables_breakdown` a `receivables_turnover`.
+
+### Změněno
+- Procházení seznamu faktur (`receivables_query`) zůstává jen jako náhrada, když konektor nové přehledy nenabízí.
+
 ## [1.0.8] – 2026-10-17
 
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.4, NBS Hub ≥ 2.4.84
