@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+## [1.0.9] – 2026-11-05
+
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.5, NBS Hub ≥ 2.4.106
 
 **Bridge:** nástroje `receivables_summary`, `receivables_breakdown`, `receivables_transactions`, `receivables_turnover` a stejné `payables_*` nad novými přehledy NBS Hubu (`receivables/stats/*`, `payables/payables/stats/*`). Se starším Hubem je bridge nenabídne.
