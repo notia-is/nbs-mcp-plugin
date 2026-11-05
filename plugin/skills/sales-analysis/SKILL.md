@@ -27,7 +27,9 @@ description: Analýza prodejů, tržeb a obratu z Notia Business Serveru (NBS). 
 | Tržby skupin zákazníků | `company_groups_query` |
 | Prodeje produktů (tento a minulý měsíc a rok) | `report_products_evaluation` se `sklad` 0 |
 | Komu a za kolik se prodával jeden produkt | `sales_products_query` (`nazev` nebo `kod`) → `id` → `sales_product_sales_history` |
-| Zákazníci za libovolné období | `receivables_query` s `plneni_od` a `plneni_do` (vystavené faktury) |
+| Fakturované tržby za libovolné období podle zákazníků, produktů nebo obchodníků | `receivables_breakdown` s `from`, `to` a `group_by` |
+| Vývoj fakturovaných tržeb po měsících, čtvrtletích nebo letech, top zákazníci a produkty | `receivables_turnover` s `group_by` (např. `rok,mesic` nebo `partner` s `top`) |
+| Zákazníci za libovolné období (když přehledy výše chybí) | `receivables_query` s `plneni_od` a `plneni_do` (vystavené faktury) |
 
 Tyto zdroje počítá NBS z různých podkladů, proto se jejich čísla nemusí přesně shodovat. `report_sales_yoy` a `report_sales_partners_yoy` zahrnují vystavené faktury a dobropisy i maloobchodní prodeje z pokladen. Součet faktur z `receivables_query` maloobchod nezahrnuje. Uveď, z kterého přehledu výsledek pochází. Když pole neříká, jestli jsou částky s DPH, netvrď to.
 
@@ -71,7 +73,8 @@ Každý přehled vrací meziroční změnu v jiném tvaru. Než změny porovná�
 ## Libovolné období podle zákazníků
 
 - Celkové tržby za období složené z celých měsíců vezmi z `report_sales_yoy` (sečti měsíce z `values`), pro starší roky s vyšším `roky`. Faktury na to neprocházej.
-- Rozpad po zákaznících za období, které přehledy výše nepokryjí, spočítej z vystavených faktur: `receivables_query` s `plneni_od` a `plneni_do`, pro jednoho zákazníka navíc s `partner`. Další pravidla pro doklady jsou v skillu `receivables-payables`.
+- Rozpad po zákaznících, produktech nebo obchodnících za libovolné období vezmi z `receivables_breakdown` (`group_by` `partner`, `produkt` nebo `obchodnik`, seřazený žebříček z `receivables_turnover` s `top`). Vývoj fakturovaných tržeb po měsících dá `receivables_turnover` s `group_by` `rok,mesic` a `date_type` `plneni`. Pravidla k těmto přehledům jsou v skillu `receivables-payables`, sekce „Souhrny, rozpady a obraty za období“.
+- Když konektor tyto přehledy nenabízí, spočítej rozpad z vystavených faktur: `receivables_query` s `plneni_od` a `plneni_do`, pro jednoho zákazníka navíc s `partner`. Další pravidla pro doklady jsou v skillu `receivables-payables`.
 - Když je faktur v období víc, než se podle společných pravidel vejde do konverzace, nenačítej je. Řekni uživateli, kolik jich je, a nabídni celkový součet z `report_sales_yoy`, kratší období nebo vybrané zákazníky přes `partner`.
 - Do tržeb počítej `castka_kc` (bez DPH) podle data `plneni`. Počítej jen faktury a dobropisy (`dokl_typ` 10 a 11) ve stavu 1 až 3, stejně jako přehledy prodejů NBS. Nové doklady (`stav` 0), stornované (-1), „Neřeší se“ (-2) a zálohové faktury (`dokl_typ` 12 a 13) vynech. Dobropisy (`dokl_typ` 11) mají `castka_kc` záporné, takže se při sečtení s fakturami samy odečtou. Kladný dobropis je chyba v datech, uživatele na něj upozorni.
 - Řekni, kolik faktur jsi sečetl a že jde o fakturované tržby.
