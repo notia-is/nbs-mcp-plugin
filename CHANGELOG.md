@@ -4,6 +4,8 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+## [1.0.10] – 2026-11-09
+
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.5, NBS Hub ≥ 2.4.106, MCP gateway mcp-notia ≥ 1.1.1
 
 **Gateway:** více firem přes jeden konektor (mcp-notia 1.1.0) a správa připojených firem na `/oauth/firmy` s polem `sprava_firem` v `firmy_seznam` (1.1.1). Bridge ani Hub se nemění. Se starší gatewayí skills počítají s obálkou `{ firma, data }`, kterou stará gateway nevrací.
