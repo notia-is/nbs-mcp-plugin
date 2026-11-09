@@ -4,6 +4,18 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 
 ## [Nevydáno]
 
+**Vyžaduje:** MCP gateway (mcp.notia.cz) s podporou více firem (mcp-notia ≥ 1.1.0, zatím nevydáno), nbs-mcp-bridge ≥ 1.0.5. Bridge se nemění. Se starší gatewayí skills počítají s obálkou `{ firma, data }`, kterou stará gateway nevrací.
+
+### Přidáno
+- Více firem přes jeden konektor: parametr `firma` u všech nástrojů, nástroje `firmy_seznam`, `firma_info` a `firma_vychozi_nastav` (sekce „Více firem“ v `nbs-overview`, společná pravidla).
+- Chyby `firma_nezvolena` a `firma_nenalezena` ve společné sekci „Chyby“.
+
+### Změněno
+- Odpověď každého nástroje je `{ firma: { kod, nazev }, data }`, popisy výsledků ve skills platí pro `data`.
+- `companies-pricing`: rozlišení obchodního partnera („firmy“ v NBS) a vlastní firmy uživatele (`firma_info`).
+- Zásady ochrany osobních údajů a README: připojené firmy a výchozí firma.
+- README: při znovupřipojení konektoru se uživatel přihlásí nejdřív do stejné firmy jako poprvé. Připojené firmy patří jen k ní, přihlášení přes připojenou firmu je nevidí.
+
 ## [1.0.9] – 2026-11-05
 
 **Vyžaduje:** nbs-mcp-bridge ≥ 1.0.5, NBS Hub ≥ 2.4.106

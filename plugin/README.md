@@ -20,6 +20,8 @@ Když si nejste jistí, zeptejte se správce NBS ve své firmě nebo podpory Not
 2. V okně, které se otevře, zadejte doménu své firmy (například `firma.cz`). Budete přesměrováni na přihlašovací stránku svého NBS Hubu, kde se přihlásíte jako obvykle.
 3. Ptejte se běžnou řečí, například: „Jak si letos vedou tržby proti loňsku?“, „Které faktury jsou po splatnosti?“ nebo „Kolik kusů produktu X je volných na skladě?“
 
+**Více firem.** Máte-li účet ve více firmách s NBS, zaškrtněte při přihlášení „Po přihlášení chci připojit další firmu“ a přihlaste se postupně do NBS každé z nich. Pak v jednom chatu stačí říct, o kterou firmu jde („tržby v Masticlife“, „porovnej pohledávky obou firem“), nebo si nastavit výchozí firmu („od teď pracuj s Notia IS“). Výchozí firma platí i v dalších chatech. Další firmu přidáte znovupřipojením konektoru. Při znovupřipojení se přihlaste nejdřív do stejné firmy jako poprvé, připojené firmy i výchozí firma patří k ní.
+
 Plugin obsahuje skills, které Claude vedou při výběru nástrojů, dohledání partnerů a produktů a přehledné prezentaci výsledků:
 
 | Skill | Oblast |
@@ -42,7 +44,7 @@ Plugin obsahuje skills, které Claude vedou při výběru nástrojů, dohledán�
 - Heslo zadáváte jen na přihlašovací stránce NBS Hubu své firmy. Služba `mcp.notia.cz` ani Claude ho nevidí. Claude dostane jen časově omezený přístupový token ke konektoru, ne heslo ani přihlášení do NBS.
 - Dotazy, které Claude sestaví (název nástroje, období a filtry), jdou přes `mcp.notia.cz` do NBS Hubu vaší firmy. Výsledky se stejnou cestou vracejí do konverzace. `mcp.notia.cz` je jen předává a neukládá. Jako součást konverzace je pak zpracovává Anthropic podle svých podmínek.
 - Doménu firmy `mcp.notia.cz` použije jen k vyhledání adresy vašeho NBS Hubu v adresáři Notia.
-- Samotný plugin neobsahuje přihlašovací údaje ani klíče. `mcp.notia.cz` ukládá jen záznam o propojení (nejdéle 30 dní) a auditní záznam bez obsahu dotazů. Podrobnosti jsou v zásadách níže.
+- Samotný plugin neobsahuje přihlašovací údaje ani klíče. `mcp.notia.cz` ukládá jen záznam o propojení s každou připojenou firmou (nejdéle 30 dní), vaši výchozí firmu a auditní záznam bez obsahu dotazů. Podrobnosti jsou v zásadách níže.
 - Propojení zrušíte v NBS v profilu, sekce „Aktivní propojení“. Odpojením konektoru v Claude ho Claude přestane používat. Neodvolané propojení vyprší nejpozději 30 dní po přihlášení.
 - Jak Notia zpracovává osobní údaje, popisují [zásady ochrany osobních údajů](https://notia.com/nbs-claude-privacy/).
 

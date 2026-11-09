@@ -1,6 +1,6 @@
 ---
 name: nbs-overview
-description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Použij, když se uživatel ptá, co všechno umíš z NBS, jaká data z NBS dokážeš zjistit nebo s čím mu pomůžeš, případně když dotaz na NBS nespadá do žádné konkrétní oblasti, a je připojený konektor Notia Business Server.
+description: Přehled, s čím pomůže konektor Notia Business Server (NBS), a práce s více firmami. Použij, když se uživatel ptá, co všechno umíš z NBS, jaká data z NBS dokážeš zjistit nebo s čím mu pomůžeš, ke kterým firmám má přístup, ve které firmě pracuje, nebo chce přepnout či nastavit výchozí firmu, případně když dotaz na NBS nespadá do žádné konkrétní oblasti, a je připojený konektor Notia Business Server.
 ---
 
 # Co umí konektor NBS
@@ -8,6 +8,10 @@ description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Po
 ## Společná pravidla
 
 - Konektor čte data z NBS jen pro čtení a s oprávněními přihlášeného uživatele.
+- Každý nástroj vrací `{ firma: { kod, nazev }, data }`. `firma` říká, ze které firmy data jsou, vše ostatní popsané ve skillu platí pro `data`. Chyba má místo `data` pole `chyba`.
+- Uživatel může mít přes konektor přístup k více firmám. Firmu volíš volitelným parametrem `firma` (kód firmy, např. `MASTICLIFE`) u každého nástroje. Kódy a výchozí firmu vrací `firmy_seznam`. Bez parametru se použije výchozí firma.
+- Když se uživatel ptá na konkrétní firmu, předávej její kód v parametru `firma` u všech volání, i když je to výchozí firma. V odpovědi uveď, ze které firmy data jsou, pokud jich uživatel má víc.
+- Dvě firmy porovnej paralelními voláními stejného nástroje s různým `firma`. Data různých firem nesčítej, dokud to uživatel výslovně nechce, a uveď je odděleně.
 - Když konektor některý nástroj nenabízí, firma ho nemá zpřístupněný. Řekni to a data neodhaduj.
 - Každý seznam (`*_query`, ale i reporty a podseznamy) vrací `{ rows, total, truncated }`: `rows` jsou vrácené řádky, `total` počet všech záznamů a `truncated: true` znamená, že se všechny nevešly a výsledek je neúplný. Seznamy se stránkováním vrací ve výchozím stavu 50 řádků, další stránku dostaneš přes `offset`.
 - Široké seznamy (doklady, produkty, firmy, sklady) nech na výchozím `limit` 50 a nejvýš 100, jinak výsledek přeroste limit velikosti. `limit` 200 posílej jen u krátkých číselníků, u kterých to skill výslovně uvádí.
@@ -29,6 +33,21 @@ description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Po
 | Smlouvy a fakturační podklady | `contracts` | `contracts_query` | smlouvy, sazby a kredit, SLA lhůty, co je připravené k vyfakturování |
 | Helpdesk | `helpdesk` | `helpdesk_tickets_query` | tikety, jejich stav a řešitelé, výkazy práce, zákaznický portál |
 
+## Více firem
+
+Uživatel může mít přes jeden konektor přístup k více firmám (instancím NBS).
+
+| Otázka | Nástroj |
+|---|---|
+| Ke kterým firmám mám přístup, která je výchozí | `firmy_seznam` |
+| Název, IČO, DIČ a adresa vlastní firmy | `firma_info` (bez parametru výchozí firma) |
+| „Od teď pracuj s firmou X“, „nastav výchozí firmu“ | `firma_vychozi_nastav` s kódem firmy |
+| Srovnání dvou firem | stejný nástroj paralelně s `firma` = kód každé firmy |
+
+- Výchozí firmu měň jen na výslovné přání uživatele. Ukládá se na serveru a platí i v dalších chatech. Pro jednorázový dotaz na jinou firmu stačí parametr `firma`.
+- Když se uživatel ptá na firmu, kterou ve `firmy_seznam` nemá, přidat si ji může sám: konektor Notia Business Server v nastavení konektorů znovu připojí a na stránce přihlášení zaškrtne „Po přihlášení chci připojit další firmu“. Pak se přihlásí do NBS každé firmy.
+- Firmy uživateli představ názvem, kód uveď jen tehdy, když je potřeba firmy rozlišit.
+
 ## Jak odpovědět
 
 - Uveď jen oblasti, jejichž hlavní nástroj konektor nabízí. Firma může nástroje zúžit a ostatní oblasti uživatel nemá k dispozici.
@@ -48,6 +67,8 @@ description: Přehled, s čím pomůže konektor Notia Business Server (NBS). Po
 
 ## Chyby
 
+- `kod: "firma_nezvolena"`: uživatel má víc firem a žádnou výchozí. Když z konverzace nevíš, o kterou firmu jde, zeptej se ho a nabídni firmy z pole `firmy`. Pak dotaz zopakuj s parametrem `firma`. Na přání uživatele nastav výchozí firmu nástrojem `firma_vychozi_nastav`.
+- `kod: "firma_nenalezena"`: firma s tímto kódem neexistuje, nebo k ní uživatel nemá přístup. Ověř kód ve `firmy_seznam`. Když firma v seznamu není, řekni uživateli, že k ní přes konektor přístup nemá, a že ji může připojit při znovupřipojení konektoru volbou „připojit další firmu“.
 - „Platnost přihlášení do NBS vypršela“: požádej uživatele, ať konektor Notia Business Server znovu připojí v nastavení konektorů.
 - „Správce vaší firmy integraci NBS s Claude vypnul“ nebo „Nemáte v NBS oprávnění používat Claude“: řekni uživateli, že integraci musí zapnout nebo oprávnění přidělit správce NBS v jeho firmě a potom je potřeba konektor znovu připojit. Další nástroje nezkoušej.
 - „K těmto datům nemáte v NBS oprávnění“: řekni to uživateli a nezkoušej data získat jiným nástrojem.

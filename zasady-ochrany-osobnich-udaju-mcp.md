@@ -20,7 +20,7 @@ Uživatelé Notia Business Server (NBS) mohou svůj účet propojit s AI asisten
 
 - Uživatel se přihlašuje přímo do NBS své firmy. Heslo nevidí ani Claude, ani služba mcp.notia.cz, přes kterou propojení vede.
 - Claude získá jen data, o která v konverzaci požádá, a jen v rozsahu oprávnění přihlášeného uživatele v NBS.
-- Služba mcp.notia.cz data z NBS jen předává a neukládá je. Uchovává pouze záznam o propojení (nejdéle 30 dní od přihlášení) a provozní záznamy pro zajištění bezpečnosti (např. čas, uživatel, použitá funkce, IP adresa), bez obsahu dotazů a výsledků.
+- Služba mcp.notia.cz data z NBS jen předává a neukládá je. Uchovává pouze záznam o propojení (nejdéle 30 dní od přihlášení, u každé připojené firmy zvlášť), vazbu mezi přihlašovacími jmény uživatele v připojených firmách a jeho výchozí firmu (po dobu používání služby) a provozní záznamy pro zajištění bezpečnosti (např. čas, uživatel, použitá funkce, IP adresa), bez obsahu dotazů a výsledků.
 - Při přihlášení se používají jen technicky nezbytné cookies.
 - Data, která Claude získá, se stávají součástí konverzace a zpracovává je Anthropic podle svých [zásad ochrany soukromí](https://www.anthropic.com/legal/privacy).
 - Propojení lze kdykoli zrušit v profilu NBS (sekce „Aktivní propojení“). Neodvolané propojení vyprší samo.
