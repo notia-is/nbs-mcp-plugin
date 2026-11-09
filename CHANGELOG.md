@@ -9,6 +9,7 @@ Podstatné změny pluginu Notia Business Server. Nové změny se zapisují do se
 ### Přidáno
 - Více firem přes jeden konektor: parametr `firma` u všech nástrojů, nástroje `firmy_seznam`, `firma_info` a `firma_vychozi_nastav` (sekce „Více firem“ v `nbs-overview`, společná pravidla).
 - Chyby `firma_nezvolena` a `firma_nenalezena` ve společné sekci „Chyby“.
+- Správa připojených firem: `nbs-overview` a chyba `firma_nenalezena` posílají uživatele na stránku z `firmy_seznam` (`sprava_firem.odkaz`), kde firmy odpojí nebo přidá bez znovupřipojení konektoru. README popisuje stránku https://mcp.notia.cz/oauth/firmy.
 
 ### Změněno
 - Odpověď každého nástroje je `{ firma: { kod, nazev }, data }`, popisy výsledků ve skills platí pro `data`.

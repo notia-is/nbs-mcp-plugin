@@ -70,7 +70,7 @@ description: Smlouvy se zákazníky, jejich sazby a předplacený kredit, SLA lh
 ## Chyby
 
 - `kod: "firma_nezvolena"`: uživatel má víc firem a žádnou výchozí. Když z konverzace nevíš, o kterou firmu jde, zeptej se ho a nabídni firmy z pole `firmy`. Pak dotaz zopakuj s parametrem `firma`. Na přání uživatele nastav výchozí firmu nástrojem `firma_vychozi_nastav`.
-- `kod: "firma_nenalezena"`: firma s tímto kódem neexistuje, nebo k ní uživatel nemá přístup. Ověř kód ve `firmy_seznam`. Když firma v seznamu není, řekni uživateli, že k ní přes konektor přístup nemá, a že ji může připojit při znovupřipojení konektoru volbou „připojit další firmu“.
+- `kod: "firma_nenalezena"`: firma s tímto kódem neexistuje, nebo k ní uživatel nemá přístup. Ověř kód ve `firmy_seznam`. Když firma v seznamu není, řekni uživateli, že k ní přes konektor přístup nemá, a že ji může připojit na stránce správy firem (`sprava_firem.odkaz` z `firmy_seznam`).
 - „Platnost přihlášení do NBS vypršela“: požádej uživatele, ať konektor Notia Business Server znovu připojí v nastavení konektorů.
 - „Správce vaší firmy integraci NBS s Claude vypnul“ nebo „Nemáte v NBS oprávnění používat Claude“: řekni uživateli, že integraci musí zapnout nebo oprávnění přidělit správce NBS v jeho firmě a potom je potřeba konektor znovu připojit. Další nástroje nezkoušej.
 - „K těmto datům nemáte v NBS oprávnění“: řekni to uživateli a nezkoušej data získat jiným nástrojem.
