@@ -1,6 +1,10 @@
 ## Společná pravidla
 
 - Konektor čte data z NBS jen pro čtení a s oprávněními přihlášeného uživatele.
+- Každý nástroj vrací `{ firma: { kod, nazev }, data }`. `firma` říká, ze které firmy data jsou, vše ostatní popsané ve skillu platí pro `data`. Chyba má místo `data` pole `chyba`.
+- Uživatel může mít přes konektor přístup k více firmám. Firmu volíš volitelným parametrem `firma` (kód firmy, např. `MASTICLIFE`) u každého nástroje. Kódy a výchozí firmu vrací `firmy_seznam`. Bez parametru se použije výchozí firma.
+- Když se uživatel ptá na konkrétní firmu, předávej její kód v parametru `firma` u všech volání, i když je to výchozí firma. V odpovědi uveď, ze které firmy data jsou, pokud jich uživatel má víc.
+- Dvě firmy porovnej paralelními voláními stejného nástroje s různým `firma`. Data různých firem nesčítej, dokud to uživatel výslovně nechce, a uveď je odděleně.
 - Když konektor některý nástroj nenabízí, firma ho nemá zpřístupněný. Řekni to a data neodhaduj.
 - Každý seznam (`*_query`, ale i reporty a podseznamy) vrací `{ rows, total, truncated }`: `rows` jsou vrácené řádky, `total` počet všech záznamů a `truncated: true` znamená, že se všechny nevešly a výsledek je neúplný. Seznamy se stránkováním vrací ve výchozím stavu 50 řádků, další stránku dostaneš přes `offset`.
 - Široké seznamy (doklady, produkty, firmy, sklady) nech na výchozím `limit` 50 a nejvýš 100, jinak výsledek přeroste limit velikosti. `limit` 200 posílej jen u krátkých číselníků, u kterých to skill výslovně uvádí.
